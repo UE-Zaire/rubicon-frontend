@@ -6,7 +6,7 @@ import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
 import { AutoCompData, IData, IGlobalState } from '../globalTypes';
-
+import Preview from './Preview';
 
 const { Content } = Layout;
 
@@ -139,7 +139,8 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     console.log('D3 click fired');
   }
 
-  private loadPreview = () => {
-    console.log('D3 mousevent fired');
+  private loadPreview = (e: any) => {
+    console.log('D3 mousevent fired', e);
+    return <Preview q={this.state.search} />
   }
 }
