@@ -1,19 +1,27 @@
+import { debounce } from "lodash";
 import * as React from "react";
 import Iframe from "react-iframe";
+import { IPreviewProps } from "../globalTypes";
 
-interface IWikiProps {
-  q: string;
-}
-
-export default class StaticWiki extends React.Component<IWikiProps, {}>{
+export default class StaticWiki extends React.Component<IPreviewProps, {}>{
   public render() {
+    const {lookup, removePreview, x, y} = this.props;
+
     return (
-      <Iframe url={`https://en.wikipedia.org/wiki/${this.props.q}`}
-      width="80vw"
-      height="60vh"
-      display="initial"
-      position="relative"
-      allowFullScreen={true}/>
+      <div onMouseLeave={debounce(removePreview, 300)}>
+        <Iframe url={`https://en.wikipedia.org/wiki/${lookup}`}
+        width="40vw"
+        height="30vh"
+        display="initial"
+        position="fixed"
+        styles={{
+          left: x,
+          top: y
+        }}
+        allowFullScreen={true}/>
+      </div>
     );
   }
+
+  
 }
