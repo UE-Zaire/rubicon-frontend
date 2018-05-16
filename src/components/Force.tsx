@@ -1,6 +1,7 @@
 /* tslint:disable:no-console jsx-no-lambda */
 import * as d3 from 'd3';
 import { SimulationNodeDatum } from 'd3';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import { Component } from 'react';
 import { IForceProps } from '../globalTypes';
@@ -119,6 +120,7 @@ export default class ForceGraph extends Component<IForceProps> {
               .style("font-family", "Arial")
               .style("font-size", 12)
               .on("click", this.props.handleEv)
+              .on("mouseenter", debounce( this.props.loadPreview, 100))
 
       this.force.on('tick', () => {
         link

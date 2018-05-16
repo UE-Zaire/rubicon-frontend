@@ -4,12 +4,13 @@ export interface IData {
 }
 
 export interface IGlobalState {
+  autoComp: AutoCompData;
   collapsed: boolean;
-  platform: string;
   forceData: IData | null;
   height: number;
+  platform: string;
+  preview: IPreview | null;
   renderChild: boolean;
-  autoComp: AutoCompData;
   search: string;
   width: number;
 }
@@ -23,6 +24,7 @@ export interface IForceProps {
   height: number;
   data: IData;
   handleEv: () => void;
+  loadPreview: (e: any) => void;
 }
 
 export interface IHeadProps {
@@ -42,9 +44,19 @@ export interface INavProps {
   view: string;
 }
 
+export interface IPreviewProps extends IPreview{
+  removePreview: () => void;
+}
+
 export interface IAutoCompDatum{
   id: string; 
   label: string;
+}
+
+export interface IPreview{
+  lookup: string;
+  x: number;
+  y: number; 
 }
 
 export type AutoCompData = IAutoCompDatum[];

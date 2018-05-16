@@ -6,7 +6,7 @@ import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
 import { AutoCompData, IData, IGlobalState } from '../globalTypes';
-
+import Preview from './Preview';
 
 const { Content } = Layout;
 
@@ -18,9 +18,10 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     forceData: null,
     height: 0,
     platform: 'wikipedia',
+    preview: null,
     renderChild: false,
     search: 'Mammal',
-    width: 0
+    width: 0,
   };
 
   public divElement: HTMLDivElement | null = null;
@@ -40,7 +41,7 @@ export default class Dash extends React.Component <{}, IGlobalState> {
   }
   
   public render() {
-    const { collapsed, forceData, height, width, autoComp, platform, search } = this.state;
+    const { collapsed, forceData, height, width, autoComp, platform, preview, search } = this.state;
 
     return (
       <Layout style={{ minHeight: '100vh', minWidth: '100vw' }}>
@@ -64,7 +65,12 @@ export default class Dash extends React.Component <{}, IGlobalState> {
                   style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
                 >
                   <div ref={divElement => { this.divElement = divElement }} style={{ height, width: `${!collapsed ? width : width * .9}` }}>
-                    <Force width={width} height={height} data={forceData} handleEv={this.handleD3Ev} />
+                    <Force 
+                      width={width} 
+                      height={height} 
+                      data={forceData} 
+                      loadPreview={this.loadPreview} 
+                      handleEv={this.handleD3Ev} />
                   </div>
                 </Content>) :
               (<Content>
@@ -75,13 +81,10 @@ export default class Dash extends React.Component <{}, IGlobalState> {
             }
             </Col>
           </Row>
+          {preview !== null ? <Preview {...preview} removePreview={this.removePreview}/> : null}
         </Layout>
       </Layout>
     );
-  }
-
-  private handleD3Ev = () => {
-    console.log('D3 click fired');
   }
   
   private postWiki = () => {
@@ -139,4 +142,20 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     });
   }
 
+  private handleD3Ev = () => {
+    console.log('D3 click fired');
+  }
+
+  private loadPreview = (e: any) => {
+    console.log('D3 mousevent fired', e);
+    this.setState({
+      preview : {lookup: e.id, x: e.x, y: e.y}
+    });
+  }
+
+  private removePreview = () => {
+    this.setState({
+      preview: null
+    });
+  }
 }
