@@ -23,6 +23,7 @@ export interface IForceProps {
   height: number;
   data: IData;
   handleEv: () => void;
+  loadPreview: () => void;
 }
 
 export interface IHeadProps {

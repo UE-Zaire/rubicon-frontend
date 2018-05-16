@@ -64,7 +64,7 @@ export default class Dash extends React.Component <{}, IGlobalState> {
                   style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
                 >
                   <div ref={divElement => { this.divElement = divElement }} style={{ height, width: `${!collapsed ? width : width * .9}` }}>
-                    <Force width={width} height={height} data={forceData} handleEv={this.handleD3Ev} />
+                    <Force width={width} height={height} data={forceData} loadPreview={this.loadPreview} handleEv={this.handleD3Ev} />
                   </div>
                 </Content>) :
               (<Content>
@@ -78,10 +78,6 @@ export default class Dash extends React.Component <{}, IGlobalState> {
         </Layout>
       </Layout>
     );
-  }
-
-  private handleD3Ev = () => {
-    console.log('D3 click fired');
   }
   
   private postWiki = () => {
@@ -139,4 +135,11 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     });
   }
 
+  private handleD3Ev = () => {
+    console.log('D3 click fired');
+  }
+
+  private loadPreview = () => {
+    console.log('D3 mousevent fired');
+  }
 }
