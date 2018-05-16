@@ -4,10 +4,12 @@
   "private": true,
   "dependencies": {
     "@types/d3": "^5.0.0",
+    "@types/lodash": "^4.14.108",
     "@types/react-fa": "^4.1.4",
     "antd": "^3.5.0",
     "axios": "^0.18.0",
     "d3": "^5.1.0",
+    "lodash": "^4.17.10",
     "react": "^16.3.2",
     "react-autocomplete": "^1.8.1",
     "react-dom": "^16.3.2",
