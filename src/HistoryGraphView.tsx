@@ -25,10 +25,12 @@ function addNode(i: number) {
     if (nodes.length > 0) {
         const parent = nodes[nodes.length - 1];
         parent.next = n;
-        n.x = parent.x + 200
+        n.x = parent.x + 40
+        n.y = parent.y
         links.push({source: nodes[nodes.length - 1], target: n});
     }
-    for (const suggestion of n.suggestions) {
+    for (let suggestionIndex = 0; suggestionIndex < n.suggestions.length; suggestionIndex++) {
+        const suggestion = n.suggestions[suggestionIndex];
         const suggestionNode: HistoryGraphNode = {
             data: {
                 name: suggestion
@@ -39,8 +41,8 @@ function addNode(i: number) {
             suggestions: [],
             vx: 0,
             vy: 0,
-            x: -150 + i * 50,
-            y: 0,
+            x: n.x,
+            y: n.y - 20 + 40 * (suggestionIndex % 2),
         }
         nodes.push(suggestionNode);
         links.push({source: n, target: suggestionNode});
@@ -67,8 +69,8 @@ class HistoryGraphView extends React.Component {
         const   color = d3.scaleOrdinal(d3.schemeCategory10);
 
         const simulation = d3.forceSimulation(nodes)
-            .force("charge", d3.forceManyBody().strength(-200))
-            .force("link", d3.forceLink(links).distance(40))
+            .force("charge", d3.forceManyBody().strength(-200).distanceMax(200))
+            .force("link", d3.forceLink(links).distance(50).strength(0.5))
             .force("y", d3.forceY((d: any) => d.isSuggestion? d.y: 0))
             .alphaTarget(1)
             .on("tick", ticked)
@@ -92,7 +94,7 @@ class HistoryGraphView extends React.Component {
             node = node.data(nodes, (d: any) => d.index);
             node.exit().remove();
             node = node.enter()
-                .append("g").attr("fill", (d: any) => color(d.index))
+                .append("g").attr("fill", (d: any) => color(d.index)) // ((d.mousedOver === true) || !d.isSuggestion)? color(d.index): 'grey')
                 .attr("r", 8)
                 .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
                 .merge(node);
@@ -133,6 +135,12 @@ class HistoryGraphView extends React.Component {
                     .on("start", dragstarted)
                     .on("drag", dragged)
                     .on("end", dragended))
+                
+                // .on('mouseover', (d: any) => {
+                //     d.mousedOver = true;
+                //     d3.select(this).empty
+                // })
+                // .on('mouseout', (d: any) => {d.mousedOver = false;});
 
             // Apply the general update pattern to the links.
             link = link.data(links, (d: {source: SimulationNodeDatum, target: SimulationNodeDatum})  =>
