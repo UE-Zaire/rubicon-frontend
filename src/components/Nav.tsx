@@ -39,15 +39,15 @@ export default (props: INavProps) => (
       selectedKeys={[props.view]}
     >
       <Menu.Item key="wikipedia">
-        <Row align={"middle"} justify={"start"}>
-          <span><FA name="wikipedia-w" style={{ paddingLeft: -2, paddingRight: 12, fontSize: 20 }}/>{!props.collapsed ? "Wikipedia" : null}</span>
-        </Row>
+          <i className="anticon">
+            <FA  name="wikipedia-w"style={{ marginLeft: -2, fontSize: 20 }}/>
+          </i>
+          <span >Wikipedia</span>
       </Menu.Item>
 
       <Menu.Item key="google">
-        <Row align={"middle"} justify={"start"}>
-        <span><Icon type="google" style={{ fontSize: 20 }} />{!props.collapsed ? "Google" : null}</span>
-        </Row>
+        <Icon type="google" style={{ fontSize: 20 }} />
+        <span>Google</span>
       </Menu.Item>
     </Menu>
   </Sider>

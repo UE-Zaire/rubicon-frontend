@@ -1,7 +1,7 @@
 /* tslint:disable:no-console jsx-no-lambda */
 import * as d3 from 'd3';
 import { SimulationNodeDatum } from 'd3';
-import { debounce } from 'lodash';
+// import { debounce } from 'lodash';
 import * as React from 'react';
 import { Component } from 'react';
 import { IForceProps } from '../globalTypes';
@@ -11,9 +11,14 @@ interface IRefs {
 }
 
 export default class ForceGraph extends Component<IForceProps> {
+  public state: any = {
+    clicked: null
+  }
   
   private ctrls: IRefs = {};
   private force: any;
+  // private debouncedPreview: any = debounce(this.props.loadPreview, 400);
+
   
   public componentDidMount() {
     this.renderForce();
@@ -23,6 +28,7 @@ export default class ForceGraph extends Component<IForceProps> {
     console.log(' shouldupdating component')
       this.removeForce();
       this.renderForce();
+
   }
   
   public shouldComponentUpdate(nextProps: IForceProps) {
@@ -119,8 +125,30 @@ export default class ForceGraph extends Component<IForceProps> {
               .style("fill", "white")
               .style("font-family", "Arial")
               .style("font-size", 12)
-              .on("click", this.props.handleEv)
-              .on("mouseenter", debounce( this.props.loadPreview, 100))
+              .on("click", (e: any):void => {
+                const { id } = e;
+                const selection = d3.selectAll('circle')
+
+                if (this.state.clicked === null) {
+                  selection.filter((d: any) => {
+                    return id === d.id ? true : false;
+                  })
+                  .style("fill", "red");
+
+                  this.props.loadPreview(e);
+                  this.setState({ clicked: id });
+                } else {
+                  selection.filter((d: any) => {
+                    return id === d.id ? true : false;
+                  })
+                  .style("fill", (d: any) => color(d.group));
+
+                  this.props.removePreview();
+                  this.setState({ clicked: null });
+                }
+              })
+              // .on("mouseenter", this.debouncedPreview)
+              // .on("mouseout", this.debouncedPreview.cancel)
 
       this.force.on('tick', () => {
         link
@@ -139,6 +167,7 @@ export default class ForceGraph extends Component<IForceProps> {
       });
     }
   }
+
   private dragStarted(d: SimulationNodeDatum, force: any) {
     if (!d3.event.active) {
       force.alphaTarget(0.3).restart();

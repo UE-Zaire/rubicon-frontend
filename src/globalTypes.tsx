@@ -13,6 +13,15 @@ export interface IGlobalState {
   renderChild: boolean;
   search: string;
   width: number;
+  view: string;
+}
+
+export interface IAuthProps {
+  logIn: () => void;
+}
+
+export interface IDashProps {
+  logOut: () => void;
 }
 
 export interface ICrumbProps {
@@ -25,6 +34,7 @@ export interface IForceProps {
   data: IData;
   handleEv: () => void;
   loadPreview: (e: any) => void;
+  removePreview: () => void;
 }
 
 export interface IHeadProps {
@@ -36,6 +46,8 @@ export interface IHeadProps {
   ctrlSelect: (value: string ) => void;
   view: string;
   postWiki: () => void;
+  logOut: () => void;
+  menuClick: (e: any) => void;
 }
 
 export interface INavProps {

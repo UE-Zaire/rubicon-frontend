@@ -1,16 +1,17 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Col, Layout, Row, Spin } from "antd";
+import { Layout, Spin } from "antd";
 import Axios from 'axios';
+import { debounce } from 'lodash';
 import * as React from 'react';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
-import { AutoCompData, IData, IGlobalState } from '../globalTypes';
+import { AutoCompData, IDashProps, IData, IGlobalState } from '../globalTypes';
 import Preview from './Preview';
 
 const { Content } = Layout;
 
-export default class Dash extends React.Component <{}, IGlobalState> {
+export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
   public state = {
     autoComp: [],
@@ -21,15 +22,15 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     preview: null,
     renderChild: false,
     search: 'Mammal',
+    view: 'explore',
     width: 0,
   };
 
   public divElement: HTMLDivElement | null = null;
-  
-  
+
   public componentDidMount() {
-    window.addEventListener('resize', this.handleResize)
-    
+    window.addEventListener('resize', this.handleResize);
+
     const height = window.innerHeight > 1300 ? window.innerHeight * .90 : window.innerHeight * .82;
     const width = window.innerWidth > 2500 ? window.innerWidth * .90 : window.innerWidth * .816;
 
@@ -52,36 +53,41 @@ export default class Dash extends React.Component <{}, IGlobalState> {
             toggleSider={this.toggleNav}
             suggestions={autoComp}
             input={search}
-            ctrlInput={this.controlledInput}
+            ctrlInput={this.controlledACInput}
             ctrlSelect={this.controlledAutoComp}
             view={platform}
+            menuClick={this.chgView}
             postWiki={this.postWiki}
+            logOut={this.props.logOut}
           />
-          <Row type="flex" justify="start" align="top" gutter={16}>
-            <Col>
-            {forceData !== null ?
-              (
-                <Content
-                  style={{ margin: '2rem', padding: '2rem', background: '#fff'}}
-                >
-                  <div ref={divElement => { this.divElement = divElement }} style={{ height, width: `${!collapsed ? width : width * .9}` }}>
-                    <Force 
-                      width={width} 
-                      height={height} 
-                      data={forceData} 
-                      loadPreview={this.loadPreview} 
+          <Layout >
+            <Content
+              style={{ margin: '1.6vw', padding: '1vw', background: '#fff', height: '100%' }}
+              id="mount"
+            >
+              {forceData !== null ?
+                (
+                  <div ref={divElement => { this.divElement = divElement }} style={{ 
+                    height, width: 'inherit' 
+                    }}>
+                    <Force
+                      width={width}
+                      height={height}
+                      data={forceData}
+                      loadPreview={this.loadPreview}
+                      removePreview={this.removePreview}
                       handleEv={this.handleD3Ev} />
                   </div>
-                </Content>) :
-              (<Content>
-                <div ref={divElement => { this.divElement = divElement }} style={{ height: '100vh', width: '90vw' }}>
+                ) :
+                (<div ref={divElement => { this.divElement = divElement }} style={{ 
+                  height: '100vh', width: 'inherit' 
+                }}>
                   <Spin size="large" />
-                </div>
-              </Content>)
-            }
-            </Col>
-          </Row>
-          {preview !== null ? <Preview {...preview} removePreview={this.removePreview}/> : null}
+                </div>)
+              }
+            </Content>
+            {preview !== null ? <Preview {...preview} removePreview={this.removePreview} /> : null}
+          </Layout>
         </Layout>
       </Layout>
     );
@@ -125,21 +131,43 @@ export default class Dash extends React.Component <{}, IGlobalState> {
     })
   }
 
+  private chgView = (e: any) => {
+    this.setState({
+      view: e.key
+    });
+  }
+
   private chgPlatform = (e: { key: string; }) => {
     this.setState({
       platform: e.key,
     });
   }
 
-  private controlledInput = (e: React.FormEvent<EventTarget>): void => {
+  private controlledACInput = (e: React.FormEvent<EventTarget>): void => {
+    console.log('controlled ac input')
     const target = e.target as HTMLInputElement
+    const debouncedAC = debounce(() => this.getAutoComp(target.value), 300);
     this.setState({ search: target.value })
+    debouncedAC();
+    
   }
 
   private controlledAutoComp = ( search: string): void => {
     this.setState({
       search
     });
+  }
+
+  private getAutoComp = (search: string): void => {
+    Axios.post('http://localhost:3005/api/wikiSearch', { query: search })
+    .then((ac) => {
+      const autoComp: AutoCompData = ac.data;
+
+      this.setState({
+        autoComp
+      })
+    })
+    .catch((err) => console.error(err));
   }
 
   private handleD3Ev = () => {
@@ -149,13 +177,15 @@ export default class Dash extends React.Component <{}, IGlobalState> {
   private loadPreview = (e: any) => {
     console.log('D3 mousevent fired', e);
     this.setState({
-      preview : {lookup: e.id, x: e.x, y: e.y}
+      preview : {lookup: e.id, x: e.x, y: e.y},
+      width: this.state.width * .66
     });
   }
 
   private removePreview = () => {
     this.setState({
-      preview: null
+      preview: null,
+      width: window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80
     });
   }
 }
