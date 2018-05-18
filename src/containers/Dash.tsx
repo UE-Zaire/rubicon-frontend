@@ -31,8 +31,8 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public componentDidMount() {
     window.addEventListener('resize', this.handleResize);
 
-    const height = window.innerHeight > 1300 ? window.innerHeight * .90 : window.innerHeight * .82;
-    const width = window.innerWidth > 2500 ? window.innerWidth * .90 : window.innerWidth * .816;
+    const height = window.innerHeight > 1100 ? window.innerHeight * .88 : window.innerHeight * .82;
+    const width = window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80;
 
     this.setState({height, width}, () => this.postWiki());
   }

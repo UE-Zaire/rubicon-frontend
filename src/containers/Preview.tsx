@@ -13,7 +13,7 @@ export default class StaticWiki extends React.Component<IPreviewProps, {}>{
     return (
       <Sider style={{ backgroundColor: "#f0f2f5", marginTop: '1.6vw' }} onMouseLeave={debounce(removePreview, 300)} width={'30vw'} >
         <Content
-          style={{background: '#fff', width: '28.4vw', height: `calc(100% - 3.6vh)` }}
+          style={{background: '#fff', width: '28.4vw', height: `calc(100% - 1.9vw)` }}
         >
           <Iframe url={`https://en.m.wikipedia.org/wiki/${lookup}`}
             width="inherit"

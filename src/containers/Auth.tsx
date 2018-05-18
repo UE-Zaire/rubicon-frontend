@@ -8,12 +8,11 @@ import * as React from 'react';
 // import Nav from "../components/Nav";
 import "../assets/auth.css";
 import * as Logo from "../assets/logo.png"
-import { IAuthProps } from '../globalTypes';
 
 const { Content } = Layout;
 const FormItem = Form.Item;
 
-class Auth extends React.Component <IAuthProps & FormComponentProps, {}> {
+class Auth extends React.Component <FormComponentProps, {}> {
 
   public state = {
 
@@ -70,7 +69,7 @@ class Auth extends React.Component <IAuthProps & FormComponentProps, {}> {
                             <a className="login-form-forgot" href="" >Forgot password</a>
                           </Col>
                         </Row>
-                          <Button type="primary" htmlType="submit" className="login-form-button" style={{  width: '100%'}}>
+                          <Button type="primary" htmlType="submit" href="http://localhost:3005/login" className="login-form-button" style={{  width: '100%'}}>
                             Log in
                           </Button>
                         <br />
@@ -92,9 +91,8 @@ class Auth extends React.Component <IAuthProps & FormComponentProps, {}> {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
-        this.props.logIn();
       }
-    });
+    })
   }
 }
 

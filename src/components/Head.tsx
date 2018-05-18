@@ -38,7 +38,7 @@ const Head = (props: IHeadProps) => {
     <Layout>
       <Header style={headerStyle}>
         <Row align="middle" gutter={16} style={rowStyle} type={"flex"}>
-          <Col span={21}>
+          <Col span={20}>
             <Icon
               className="trigger"
               type={props.collapsed ? 'menu-unfold' : 'menu-fold'}
@@ -68,10 +68,10 @@ const Head = (props: IHeadProps) => {
               onClick={props.postWiki}
               type={"primary"}
             >
-              Submit type
+              Submit
           </Button>
           </Col>
-          <Col span={3}>
+          <Col span={4}>
             <Dropdown overlay={menu}>
                 <Button shape={"circle"} icon={"profile"} style={{ marginLeft: '1vw', marginRight: '1vw', paddingTop: '2px' }} type={"primary"}/>
             </Dropdown>
