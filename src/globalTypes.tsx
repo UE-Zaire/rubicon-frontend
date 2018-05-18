@@ -16,10 +16,6 @@ export interface IGlobalState {
   view: string;
 }
 
-export interface IAuthProps {
-  logIn: () => void;
-}
-
 export interface IDashProps {
   logOut: () => void;
 }
