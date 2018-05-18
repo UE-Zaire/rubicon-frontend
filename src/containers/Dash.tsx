@@ -95,11 +95,11 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   
   private postWiki = () => {
 
-    Axios.post('http://localhost:3005/api/wikiRecommendations', { link: `https://en.wikipedia.org/wiki/${this.state.search}`, query: this.state.search })
+    Axios.post('/api/wikiRecommendations', { link: `https://en.wikipedia.org/wiki/${this.state.search}`, query: this.state.search })
       .then((recs) => {
         const forceData: IData = recs.data;
 
-        Axios.post('http://localhost:3005/api/wikiSearch', { query: this.state.search })
+        Axios.post('/api/wikiSearch', { query: this.state.search })
           .then((ac) => {
             const autoComp: AutoCompData = ac.data;
 
@@ -159,7 +159,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   }
 
   private getAutoComp = (search: string): void => {
-    Axios.post('http://localhost:3005/api/wikiSearch', { query: search })
+    Axios.post('/api/wikiSearch', { query: search })
     .then((ac) => {
       const autoComp: AutoCompData = ac.data;
 
