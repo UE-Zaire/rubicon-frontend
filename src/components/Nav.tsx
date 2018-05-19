@@ -7,7 +7,6 @@ import { INavProps } from "../globalTypes";
 const { Sider } = Layout;
 
 
-
 export default (props: INavProps) => (
   <Sider
     trigger={null}
@@ -48,6 +47,14 @@ export default (props: INavProps) => (
       <Menu.Item key="google">
         <Icon type="google" style={{ fontSize: 20 }} />
         <span>Google</span>
+      </Menu.Item>
+      <Menu.Item key="searches">
+        <Icon type="book" style={{ fontSize: 20 }} /> 
+        <span>Saved Searches</span>
+      </Menu.Item>
+      <Menu.Item key="settings">
+        <Icon type="setting" style={{ fontSize: 20 }} />
+        <span>Settings</span>
       </Menu.Item>
     </Menu>
   </Sider>
