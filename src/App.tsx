@@ -24,9 +24,19 @@ class App extends React.Component {
   }
 
   private toggleAuth = () => {
-    this.setState({
-      auth: !this.state.auth
-    });
+    if (this.state.auth) {
+      Axios.get('/logout')
+        .then((res: any) => {
+          this.setState({
+            auth: false
+          });
+        })
+        .catch((err) => console.error(err))
+    } else {
+      this.setState({
+        auth: true
+      });
+    }
   }
 
   private getAuthStatus = () => {

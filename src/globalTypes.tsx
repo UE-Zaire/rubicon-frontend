@@ -8,12 +8,17 @@ export interface IGlobalState {
   collapsed: boolean;
   forceData: IData | null;
   height: number;
-  platform: string;
   preview: IPreview | null;
   renderChild: boolean;
   search: string;
+  searchH1: string;
+  searchRes: any[];
   width: number;
   view: string;
+}
+
+export interface IHeadState {
+  search: string;
 }
 
 export interface IDashProps {
@@ -42,9 +47,11 @@ export interface IHeadProps {
   ctrlSelect: (value: string ) => void;
   view: string;
   postWiki: () => void;
+  postGoog: () => void;
   logOut: () => void;
   menuClick: (e: any) => void;
 }
+
 
 export interface INavProps {
   collapsed: boolean;
