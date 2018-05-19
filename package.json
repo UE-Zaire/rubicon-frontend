@@ -4,14 +4,17 @@
   "private": true,
   "dependencies": {
     "@types/d3": "^5.0.0",
+    "@types/lodash": "^4.14.108",
     "@types/react-fa": "^4.1.4",
     "antd": "^3.5.0",
     "axios": "^0.18.0",
     "d3": "^5.1.0",
+    "lodash": "^4.17.10",
     "react": "^16.3.2",
     "react-autocomplete": "^1.8.1",
     "react-dom": "^16.3.2",
     "react-fa": "^5.0.0",
+    "react-iframe": "^1.1.0",
     "react-scripts-ts": "2.15.1"
   },
   "scripts": {
@@ -20,6 +23,7 @@
     "test": "react-app-rewired test --env=jsdom --scripts-version react-scripts-ts",
     "eject": "react-scripts-ts eject"
   },
+  "proxy": "http://localhost:3005",
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "@types/node": "^10.0.3",
