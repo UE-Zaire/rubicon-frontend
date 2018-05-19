@@ -4,10 +4,12 @@ import * as React from 'react';
 import './App.css';
 import Auth from './containers/Auth';
 import Dash from './containers/Dash';
+import { IAppRouterState } from "./globalTypes";
 
-class App extends React.Component {
-  public state: any = {
-    auth: false
+class App extends React.Component <{}, IAppRouterState> {
+  public state = {
+    auth: false,
+    userInfo: null
   }
 
   public componentDidMount () {
@@ -17,7 +19,7 @@ class App extends React.Component {
 
   public render() {
     return this.state.auth ? (
-      <Dash logOut={this.toggleAuth}/>
+      <Dash logOut={this.toggleAuth} userInfo={this.state.userInfo}/>
     ) : (
       <Auth />
     )
@@ -43,8 +45,18 @@ class App extends React.Component {
     Axios.get('/api/logged')
       .then(( { data } ) => {
         console.log('in auth check', data)
-        if (data) {
-          this.toggleAuth();
+
+        const userInfo = {
+          name: data.name,
+          profPic: data.image,
+        };
+
+        if (data.logged) {
+          this.setState({
+            userInfo 
+          }, () => {
+            this.toggleAuth();
+          });
         } 
       })
       .catch((err) => console.error(err))

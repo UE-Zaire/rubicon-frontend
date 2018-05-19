@@ -3,6 +3,11 @@ export interface IData {
   nodes: Array<{ id: string; group: number }>
 }
 
+export interface IAppRouterState {
+  auth: boolean;
+  userInfo: IUserInfo | null;
+}
+
 export interface IGlobalState {
   autoComp: AutoCompData;
   collapsed: boolean;
@@ -13,6 +18,7 @@ export interface IGlobalState {
   search: string;
   searchH1: string;
   searchRes: any[];
+  userInfo: IUserInfo | null;
   width: number;
   view: string;
 }
@@ -23,6 +29,7 @@ export interface IHeadState {
 
 export interface IDashProps {
   logOut: () => void;
+  userInfo: IUserInfo | null;
 }
 
 export interface ICrumbProps {
@@ -50,6 +57,7 @@ export interface IHeadProps {
   postGoog: () => void;
   logOut: () => void;
   menuClick: (e: any) => void;
+  userInfo: IUserInfo | null;
 }
 
 
@@ -74,4 +82,10 @@ export interface IPreview{
   y: number; 
 }
 
+export interface IUserInfo {
+  name: string;
+  profPic: string;
+} 
+
 export type AutoCompData = IAutoCompDatum[];
+

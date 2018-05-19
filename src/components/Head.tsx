@@ -37,6 +37,7 @@ export default class Head extends React.Component <IHeadProps>{
 
     const menu = (
       <Menu onClick={props.menuClick}>
+        <Menu.Item key="info" disabled={true}>{props.userInfo !== null ? props.userInfo.name : 'Name'}</Menu.Item>
         <Menu.Item key="searches"><Icon type="book" /> Saved Searches</Menu.Item>
         <Menu.Item key="settings"><Icon type="setting" /> User Settings</Menu.Item>
       </Menu>
@@ -108,7 +109,7 @@ export default class Head extends React.Component <IHeadProps>{
             <Col offset={12} >
               <Dropdown overlay={menu}>
                   {/* <Button shape={"circle"} icon={"profile"} style={{ marginLeft: '1vw', marginRight: '1vw', paddingTop: '2px' }} type={"primary"}/> */}
-                  <Avatar icon="user" style={{ marginLeft: '1vw', marginRight: '1vw', backgroundColor: '#1890ff'}}/>
+                  <Avatar size="large" src={props.userInfo !== null ? props.userInfo.profPic : ''} style={{ marginLeft: '1vw', marginRight: '1vw', backgroundColor: '#1890ff'}}/>
               </Dropdown>
   
               <Button onClick={props.logOut} icon="logout" type="danger">

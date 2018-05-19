@@ -12,22 +12,27 @@ import Preview from './Preview';
 const { Content } = Layout;
 
 export default class Dash extends React.Component <IDashProps, IGlobalState> {
-
-  public state = {
-    autoComp: [],
-    collapsed: false,
-    forceData: null,
-    height: 0,
-    preview: null,
-    renderChild: false,
-    search: 'Mammal',
-    searchH1: 'Mammal',
-    searchRes: [],
-    view: 'wikipedia',
-    width: 0,
-  };
-
   public divElement: HTMLDivElement | null = null;
+
+  constructor(props: IDashProps) {
+    super(props);
+    this.state = {
+      autoComp: [],
+      collapsed: false,
+      forceData: null,
+      height: 0,
+      preview: null,
+      renderChild: false,
+      search: 'Mammal',
+      searchH1: 'Mammal',
+      searchRes: [],
+      userInfo: props.userInfo,
+      view: 'wikipedia',
+      width: 0,
+    };
+  
+  }
+
 
   public componentDidMount() {
     window.addEventListener('resize', this.handleResize);
@@ -46,7 +51,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public render() {
     console.log('rendering ', this.state.forceData);
 
-    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchRes, view } = this.state;
+    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchRes, userInfo, view } = this.state;
 
     const wikiView = (forceData !== null ?
       (
@@ -157,6 +162,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             postGoog={this.postGoog}
             postWiki={this.postWiki}
             logOut={this.props.logOut}
+            userInfo={userInfo}
           />
           <Layout hasSider={preview !== null ? true : false}>
             <Content
