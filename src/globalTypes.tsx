@@ -17,6 +17,7 @@ export interface IGlobalState {
   renderChild: boolean;
   search: string;
   searchH1: string;
+  searchLoading: boolean;
   searchRes: any[];
   userInfo: IUserInfo | null;
   width: number;
@@ -79,7 +80,8 @@ export interface IAutoCompDatum{
 export interface IPreview{
   lookup: string;
   x: number;
-  y: number; 
+  y: number;
+  searchType: string;
 }
 
 export interface IUserInfo {

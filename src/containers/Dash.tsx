@@ -1,5 +1,5 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Avatar, Icon, Layout, List, Spin } from "antd";
+import { Avatar, Button, Icon, Layout, List, Spin } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
@@ -25,6 +25,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       renderChild: false,
       search: 'Mammal',
       searchH1: 'Mammal',
+      searchLoading: true,
       searchRes: [],
       userInfo: props.userInfo,
       view: 'wikipedia',
@@ -49,9 +50,9 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   }
   
   public render() {
-    console.log('rendering ', this.state.forceData);
+    // console.log('rendering ', this.state.forceData);
 
-    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchRes, userInfo, view } = this.state;
+    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
 
     const wikiView = (forceData !== null ?
       (
@@ -74,15 +75,35 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       </div>)
     );
 
-    const googleView = (
-        <List 
-        size="large"
-        header={<div><Icon type="google" style={{fontSize: '20px'}}/> Search Results for: {searchH1}</div>}
-        bordered={true}
-        dataSource={searchRes}
-        renderItem={(item: any) => (<a href={item.link}><List.Item>{item.title}</List.Item></a>)}
+    const googleView = this.state.view === 'googleExplore' && forceData !== null ? (
+      <div ref={divElement => { this.divElement = divElement }} style={{
+        height: '100vh', width: 'inherit'
+      }}>
+        <Force
+          width={width}
+          height={height}
+          data={forceData}
+          loadPreview={this.loadPreview}
+          removePreview={this.removePreview}
+          handleEv={this.handleD3Ev} />
+      </div>
+    ) : (
+        <List
+          size="large"
+          header={<div><Icon type="google" style={{ fontSize: '20px' }} /> Search Results for: {searchH1}</div>}
+          bordered={true}
+          loading={searchLoading}
+          dataSource={searchRes}
+          renderItem={(item: any) => (
+            <List.Item actions={[<Button onClick={() => this.exploreGoog(item)} key={item.title.split(' ')[0]} size={"small"}>Explore</Button>, <Button target="_blank"  href={item.link} key={item.title.split(' ')[0]} size={"small"}>Open</Button>]}>
+              <List.Item.Meta
+                title={<a href={"#"} onClick={() => this.loadPreviewGoog(item.link)}>{item.title}</a>}
+                description={item.description}
+              />
+              {/* <div>content</div> */}
+            </List.Item>)}
         />
-    );
+      )
 
 
 
@@ -141,7 +162,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
     const viewSwitcher = () => (
       view === 'wikipedia' ? wikiView :
-        view === 'google' ? googleView :
+        view === 'google' || view === 'googleExplore'? googleView :
           view === 'searches' ? searchView :
             (<Spin size="large" />) 
     );
@@ -181,18 +202,24 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   private postGoog = () => {
     Axios.post('/api/googleSearch', { link: `https://en.wikipedia.org/wiki/${this.state.search}`, query: this.state.search })
       .then((recs) => {
-        const searchRes = recs.data; 
+        // fix on backend, remove first and last empty string results
+        const searchRes = recs.data.filter((result: any) => {
+          if (result.title !== '') {
+            return result;
+          }
+        }); 
 
-        console.log(searchRes);
+        console.log('results from google search route', searchRes);
 
         this.setState({
           searchH1: this.state.search,
+          searchLoading: false,
           searchRes,
         });
       })
       .catch((err) => console.error(err));
   }
-  
+
   private postWiki = () => {
 
     Axios.post('/api/wikiRecommendations', { link: `https://en.wikipedia.org/wiki/${this.state.search}`, query: this.state.search })
@@ -213,6 +240,21 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
       })
       .catch((err) => console.error(err));
+  }
+
+  private exploreGoog = (item: any) => {
+    Axios.post('api/webRecommendations', { link: item.link, query: item.title})
+      .then((recs) => {
+        const forceData: IData = recs.data;
+
+        console.log('forcedata in googExplore', forceData);
+
+        this.setState({
+          forceData,
+          view: 'googleExplore'
+        })
+      })
+      .catch((err) => console.error(err))
   }
   
   private handleResize = () => this.setState({
@@ -278,9 +320,15 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   private loadPreview = (e: any) => {
     console.log('D3 mousevent fired', e);
     this.setState({
-      preview : {lookup: e.id, x: e.x, y: e.y},
+      preview : {lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
       width: this.state.width * .66
     });
+  }
+
+  private loadPreviewGoog = (link: string) => {
+    this.setState({
+      preview: {lookup: link, x: 0, y: 0, searchType: this.state.view}
+    })
   }
 
   private removePreview = () => {
