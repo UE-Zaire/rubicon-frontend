@@ -243,18 +243,23 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   }
 
   private exploreGoog = (item: any) => {
-    Axios.post('api/webRecommendations', { link: item.link, query: item.title})
-      .then((recs) => {
-        const forceData: IData = recs.data;
-
-        console.log('forcedata in googExplore', forceData);
-
-        this.setState({
-          forceData,
-          view: 'googleExplore'
+    this.setState({
+      searchLoading: true
+    }, () => {
+      Axios.post('api/webRecommendations', { link: item.link, query: item.title})
+        .then((recs) => {
+          const forceData: IData = recs.data;
+  
+          console.log('forcedata in googExplore', forceData);
+  
+          this.setState({
+            forceData,
+            view: 'googleExplore'
+          })
         })
-      })
-      .catch((err) => console.error(err))
+        .catch((err) => console.error(err))
+    })
+    
   }
   
   private handleResize = () => this.setState({
