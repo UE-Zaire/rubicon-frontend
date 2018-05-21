@@ -3,6 +3,7 @@ import { Avatar, Button, Icon, Layout, List, Spin } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
+import * as io from 'socket.io-client';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
@@ -13,6 +14,7 @@ const { Content } = Layout;
 
 export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public divElement: HTMLDivElement | null = null;
+  public socket = io();
 
   constructor(props: IDashProps) {
     super(props);
@@ -31,9 +33,16 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       view: 'wikipedia',
       width: 0,
     };
-  
+    
+    this.socket.emit('historyForExtension', { selectedGraphName: 'soloWeek', userId: '' });
+    
   }
 
+  // socket code to be triggered on click after choosing a history to open on extension:
+  
+  // socket.emit('historyForExtension', { selectedGraphName: 'graphName', userId: '' });
+
+  
 
   public componentDidMount() {
     window.addEventListener('resize', this.handleResize);
