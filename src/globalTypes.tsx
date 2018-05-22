@@ -13,8 +13,9 @@ export interface IGlobalState {
   collapsed: boolean;
   forceData: IData | null;
   height: number;
+  histories: any;
   preview: IPreview | null;
-  renderChild: boolean;
+  renderDynamic: number | null;
   search: string;
   searchH1: string;
   searchLoading: boolean;
@@ -41,6 +42,7 @@ export interface IForceProps {
   width: number;
   height: number;
   data: IData;
+  view: string;
   handleEv: () => void;
   loadPreview: (e: any) => void;
   removePreview: () => void;

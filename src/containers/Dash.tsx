@@ -1,11 +1,13 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Avatar, Button, Icon, Layout, List, Spin } from "antd";
+import { Button, Icon, Layout, List, Spin } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
+import * as io from 'socket.io-client';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
+import StaticForce from "../components/StaticForce";
 import { AutoCompData, IDashProps, IData, IGlobalState } from '../globalTypes';
 import Preview from './Preview';
 
@@ -13,6 +15,7 @@ const { Content } = Layout;
 
 export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public divElement: HTMLDivElement | null = null;
+  public socket = io();
 
   constructor(props: IDashProps) {
     super(props);
@@ -21,8 +24,9 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       collapsed: false,
       forceData: null,
       height: 0,
+      histories: [],
       preview: null,
-      renderChild: false,
+      renderDynamic: null,
       search: 'Mammal',
       searchH1: 'Mammal',
       searchLoading: true,
@@ -31,9 +35,16 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       view: 'wikipedia',
       width: 0,
     };
-  
+    
+    this.socket.emit('historyForExtension', { selectedGraphName: 'soloWeek', userId: '' });
+    
   }
 
+  // socket code to be triggered on click after choosing a history to open on extension:
+  
+  // socket.emit('historyForExtension', { selectedGraphName: 'graphName', userId: '' });
+
+  
 
   public componentDidMount() {
     window.addEventListener('resize', this.handleResize);
@@ -63,6 +74,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             width={width}
             height={height}
             data={forceData}
+            view={view}
             loadPreview={this.loadPreview}
             removePreview={this.removePreview}
             handleEv={this.handleD3Ev} />
@@ -83,6 +95,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
           width={width}
           height={height}
           data={forceData}
+          view={view}
           loadPreview={this.loadPreview}
           removePreview={this.removePreview}
           handleEv={this.handleD3Ev} />
@@ -107,29 +120,85 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
 
 
-    const listData = [];
-    for (let i = 0; i < 23; i++) {
-      listData.push({
-        avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-        content: 'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-        description: 'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-        href: 'http://ant.design',
-        title: `ant design part ${i}`,
-      });
-    }
+    const listData = [
+      { 
+        "history": "Thesis", 
+        "links": [
+          { 
+            "source": "wikipedia", 
+            "target": "medium" 
+          }
+        ], 
+        "nodes": [
+          { 
+            "added_at": "2018-05-19T21:29:25.000Z", 
+            "history": 1, 
+            "id": 1, 
+            "title": "medium",
+            "url": "http://www.medium.com", 
+          }, 
+          { 
+            "added_at": "2018-05-19T21:29:25.000Z",
+            "history": 1, 
+            "id": 1, 
+            "title": "medium", 
+            "url": "http://www.medium.com", 
+          }
+        ], 
+      }, 
+      { 
+        "history": "SoloWeek", 
+        "links": [
+          { 
+            "source": "things", 
+            "target": "objects" 
+          }
+        ], 
+        "nodes": [
+          { 
+            "added_at": "2018-05-19T21:29:25.000Z", 
+            "history": 2, 
+            "id": 4, 
+            "title": "objects", 
+            "url": "http://www.objects.com", 
+          }, 
+          { 
+            "added_at": "2018-05-19T21:29:25.000Z", 
+            "history": 2, 
+            "id": 4, 
+            "title": "objects", 
+            "url": "http://www.objects.com", 
+          }
+        ], 
+      }
+    ];
 
-    const IconText = (dataT: any) => {
+    // const sampleData = {
+    //   links: listData[0].links,
+    //   nodes: listData[0].nodes
+    // }
+    // for (let i = 0; i < 23; i++) {
+    //   listData.push({
+    //     avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+    //     content: 'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
+    //     description: 'Ant Design, a design language for background applications, is refined by Ant UED Team.',
+    //     href: 'http://ant.design',
+    //     title: `ant design part ${i}`,
+    //   });
+    // }
 
-      const { type, text } = dataT;
+    // const IconText = (dataT: any) => {
+
+    //   const { type, text } = dataT;
 
 
-      return (
-        <span>
-          <Icon type={type} style={{ marginRight: 8 }} />
-          {text}
-        </span>
-      );
-    }
+    //   return (
+    //     <span>
+    //       <Icon type={type} style={{ marginRight: 8 }} />
+    //       {text}
+    //     </span>
+    //   );
+    // }
 
     const searchView = (
       <List
@@ -143,20 +212,40 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
         }}
         dataSource={listData}
         // footer={<div><b>ant design</b> footer part</div>}
-        renderItem={(item: any) => (
-          <List.Item
-            key={item.title}
-            actions={[<IconText type="star-o" text="156" key="1" />, <IconText type="like-o" text="156" key="2" />, <IconText type="message" text="2" key="3" />]}
-            extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
-          >
-            <List.Item.Meta
-              avatar={<Avatar src={item.avatar} />}
-              title={<a href={item.href}>{item.title}</a>}
-              description={item.description}
-            />
-            {item.content}
-          </List.Item>
-        )}
+        renderItem={(item: any) => {
+          console.log('the item in list is', item);
+          return (
+            <List.Item
+              key={item.history}
+              // actions={[<IconText type="star-o" text="156" key="1" />, <IconText type="like-o" text="156" key="2" />, <IconText type="message" text="2" key="3" />]}
+              // extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
+            >
+              <List.Item.Meta
+                // avatar={<Avatar src={item.avatar} />}
+                title={<a href={'#'}>{item.history}</a>}
+                description={JSON.stringify(item.nodes)}
+              />
+              <div ref={divElement => { this.divElement = divElement }} style={{
+                height: '100%', width: 'inherit'
+              }}
+              onClick={() => this.setState({renderDynamic: this.state.renderDynamic === item.nodes[0].id ? null : item.nodes[0].id})}
+              >
+              {/* {item.content} */}
+                {this.state.renderDynamic === item.nodes[0].id && forceData !== null ? (
+                <Force
+                  width={960}
+                  height={560}
+                  view={view}
+                  data={forceData}
+                  loadPreview={this.loadPreview}
+                  removePreview={this.removePreview}
+                  handleEv={this.handleD3Ev} />) : (
+                    <StaticForce data={forceData} />
+                  )}
+              </div>
+            </List.Item>
+          )
+        }}
       />
     );
 
@@ -192,11 +281,22 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             >
               {viewSwitcher()}
             </Content>
-            {preview !== null ? <Preview {...preview} removePreview={this.removePreview} /> : null}
+            {preview !== null && <Preview {...preview} removePreview={this.removePreview} />}
           </Layout>
         </Layout>
       </Layout>
     );
+  }
+
+  private getUserGraphs() {
+    Axios.get('/api/histories')
+    .then((result: any) => {
+      console.log('fetched results from histories', result.data)
+      this.setState({ histories: result.data });
+    })
+    .catch((err: any) => {
+      console.log(err);
+    })
   }
 
   private postGoog = () => {
@@ -282,9 +382,11 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     
     this.setState({
       view: e.key,
-    }, () => (
-      this.state.view === 'google' ? this.postGoog() : null
-    ));
+    }, () => {
+      const { view } = this.state;
+      
+      return view === 'google' ? this.postGoog() : view === 'wikipedia' ? this.postWiki() : view === 'searches' ? this.getUserGraphs() : null;
+    });
   }
 
   private controlledACInput = (e: React.FormEvent<EventTarget> | string): void => {
@@ -324,10 +426,18 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
   private loadPreview = (e: any) => {
     console.log('D3 mousevent fired', e);
-    this.setState({
-      preview : {lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
-      width: this.state.width * .66
-    });
+
+    if (this.state.view === 'wikipedia') {
+      this.setState({
+        preview : {lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
+        width: this.state.width * .66
+      });
+    } else if (this.state.view === 'googleExplore') {
+      this.setState({
+        preview : {lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
+        width: this.state.width * .66
+      }); 
+    }
   }
 
   private loadPreviewGoog = (link: string) => {
