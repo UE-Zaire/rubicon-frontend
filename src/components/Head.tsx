@@ -50,41 +50,41 @@ export default class Head extends React.Component <IHeadProps>{
       <Layout>
         <Header className="header" style={headerStyle}>
           <Row gutter={16} style={rowStyle} type={"flex"}>
-            <Col >
-              <Icon
-                className="trigger"
-                type={props.collapsed ? 'menu-unfold' : 'menu-fold'}
-                onClick={props.toggleSider}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: '20px',
-                  lineHeight: '64px',
-                  padding: '0 -20px',
-                  transition: 'color .3s'}}
-              />
-            </Col>
-            <Col span={8}>
-              {props.view === 'wikipedia' ? (
-                <Autocomplete
-                  items={props.suggestions}
-                  shouldItemRender={(item: IAutoCompDatum, value: string) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-                  getItemValue={(item: IAutoCompDatum) => item.label}
-                  renderItem={(item: IAutoCompDatum, isHighlighted: boolean) =>
-                    <div
-                      key={item.id}
-                      style={{ backgroundColor: isHighlighted ? '#eee' : 'transparent' }}
-                    >
-                      {item.label}
-                    </div>
-                  }
-                  renderInput={(inputProps: any) => (<input id="value1" className="ant-input" placeholder="Select a Topic" {...inputProps} />)}
-                  value={props.input}
-                  onChange={props.ctrlInput}
-                  onSelect={props.ctrlSelect}
-                  wrapperStyle={autoCompStyle}
-                  selectOnBlur={true}
+            <Col span={12} >
+              <Row>
+                <Icon
+                  className="trigger"
+                  type={props.collapsed ? 'menu-unfold' : 'menu-fold'}
+                  onClick={props.toggleSider}
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '20px',
+                    lineHeight: '60px',
+                    padding: '0 20px',
+                    transition: 'color .3s'
+                  }}
                 />
-              ) : (props.view === 'google' ? (
+                {props.view === 'wikipedia' ? (
+                  <Autocomplete
+                    items={props.suggestions}
+                    shouldItemRender={(item: IAutoCompDatum, value: string) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+                    getItemValue={(item: IAutoCompDatum) => item.label}
+                    renderItem={(item: IAutoCompDatum, isHighlighted: boolean) =>
+                      <div
+                        key={item.id}
+                        style={{ backgroundColor: isHighlighted ? '#eee' : 'transparent' }}
+                      >
+                        {item.label}
+                      </div>
+                    }
+                    renderInput={(inputProps: any) => (<input id="value1" className="ant-input" placeholder="Select a Topic" {...inputProps} />)}
+                    value={props.input}
+                    onChange={props.ctrlInput}
+                    onSelect={props.ctrlSelect}
+                    wrapperStyle={autoCompStyle}
+                    selectOnBlur={true}
+                  />
+                ) : (props.view === 'google' ? (
                   <Input
                     placeholder="Search Google"
                     prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -92,29 +92,32 @@ export default class Head extends React.Component <IHeadProps>{
                     value={props.input}
                     onChange={props.ctrlInput}
                     ref={node => this.searchInput = node}
-                    style={{width: '40%', paddingRight: '8px'}}
+                    style={{ width: '40%', paddingRight: '8px' }}
                   />
-              ) : (null))}
-              {
-                props.view === 'google' || props.view === 'wikipedia' ? (
-                  <Button
-                    onClick={props.view === 'wikipedia' ? props.postWiki : props.postGoog }
-                    type={"primary"}
-                  >
-                    Submit
+                ) : (null))}
+                {
+                  props.view === 'google' || props.view === 'wikipedia' ? (
+                    <Button
+                      onClick={props.view === 'wikipedia' ? props.postWiki : props.postGoog}
+                      type={"primary"}
+                    >
+                      Submi
                   </Button>
-                ) : null
-              }
+                  ) : null
+                }
+              </Row>
             </Col>
-            <Col offset={12} >
-              <Dropdown overlay={menu}>
-                  {/* <Button shape={"circle"} icon={"profile"} style={{ marginLeft: '1vw', marginRight: '1vw', paddingTop: '2px' }} type={"primary"}/> */}
-                  <Avatar size="large" src={props.userInfo !== null ? props.userInfo.profPic : ''} style={{ marginLeft: '1vw', marginRight: '1vw', backgroundColor: '#1890ff'}}/>
-              </Dropdown>
-  
-              <Button onClick={props.logOut} icon="logout" type="danger">
-                LogOut
-              </Button>
+            <Col span={6} push={9}>
+              <Row>
+                <Dropdown overlay={menu}>
+                    {/* <Button shape={"circle"} icon={"profile"} style={{ marginLeft: '1vw', marginRight: '1vw', paddingTop: '2px' }} type={"primary"}/> */}
+                    <Avatar size="large" src={props.userInfo !== null ? props.userInfo.profPic : ''} style={{ marginLeft: '1vw', marginRight: '1vw', backgroundColor: '#1890ff'}}/>
+                </Dropdown>
+    
+                <Button onClick={props.logOut} icon="logout" type="danger">
+                  LogOut
+                </Button>
+              </Row>
             </Col>
           </Row>
         </Header>
