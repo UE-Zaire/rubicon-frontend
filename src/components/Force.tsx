@@ -37,7 +37,8 @@ export default class ForceGraph extends Component<IForceProps> {
   }
   
   public render() {
-    const { width, height } = this.props;
+    const { width, height, view } = this.props;
+    console.log('printing view in force', view)
     const style = {
       backgroundColor: 'rgb(255, 255, 255)',
       height,
