@@ -11,6 +11,7 @@ export interface IAppRouterState {
 export interface IGlobalState {
   autoComp: AutoCompData;
   collapsed: boolean;
+  fallbackWidth: number;
   forceData: IData | null;
   height: number;
   histories: any;
