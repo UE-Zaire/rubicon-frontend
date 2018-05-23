@@ -2,6 +2,7 @@
 import Axios from 'axios';
 import * as React from 'react';
 import './App.css';
+// import HistoryGraph from './components/extensionGraphs/HistoryGraphView';
 import Auth from './containers/Auth';
 import Dash from './containers/Dash';
 import { IAppRouterState } from "./globalTypes";
@@ -20,6 +21,7 @@ class App extends React.Component <{}, IAppRouterState> {
   public render() {
     return this.state.auth ? (
       <Dash logOut={this.toggleAuth} userInfo={this.state.userInfo}/>
+      // <HistoryGraph />
     ) : (
       <Auth />
     )

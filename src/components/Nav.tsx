@@ -39,7 +39,7 @@ export default (props: INavProps) => (
     >
       <Menu.Item key="wikipedia">
           <i className="anticon">
-            <FA  name="wikipedia-w"style={{ marginLeft: -2, fontSize: 20 }}/>
+            <FA  name="wikipedia-w" style={{ marginLeft: -2, fontSize: 20 }}/>
           </i>
           <span >Wikipedia</span>
       </Menu.Item>
