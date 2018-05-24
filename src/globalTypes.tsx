@@ -36,6 +36,8 @@ export interface IDashProps {
 }
 
 export interface ICrumbProps {
+  preview: IPreview | null; 
+  search: string;
   view: string;
 }
 
@@ -91,6 +93,7 @@ export interface IAutoCompDatum{
 }
 
 export interface IPreview{
+  name: string;
   lookup: string;
   x: number;
   y: number;

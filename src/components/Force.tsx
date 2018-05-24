@@ -102,9 +102,9 @@ export default class ForceGraph extends Component<IForceProps> {
         .enter()
         .append<SVGCircleElement>('circle')
         .attr('r', radius)
-        .style('stroke', '#FFFFFF')
+        .style('stroke', 'rgb(246, 93, 93)')
         .style('stroke-width', 2)
-        .style('fill', (d: any) => color(d.group))
+        .style('fill', (d: any) => d.group === 1 ? 'rgb(246, 93, 93)' : 'white') 
         .call(
           d3
             .drag()
@@ -119,8 +119,8 @@ export default class ForceGraph extends Component<IForceProps> {
             .append("text")
               .text((d: any) => d.id )
               .style("text-anchor", "middle")
-              .style("fill", "white")
-              .style("font-family", "Arial")
+              .style('fill', (d: any) => d.group === 1 ? 'white' : 'rgb(246, 93, 93)') 
+              .style("font-family", "Avenir")
               .style("font-size", 12)
               .on("click", (e: any):void => {
                 const { id } = e;
@@ -180,8 +180,8 @@ export default class ForceGraph extends Component<IForceProps> {
 
   private dragEnded(d: any, force: any) {
     if (!d3.event.active) { force.alphaTarget(0)};
-    // d.fx = null;
-    // d.fy = null;
+    d.fx = null;
+    d.fy = null;
   }
 
 }

@@ -101,7 +101,7 @@ export default class Head extends React.Component <IHeadProps>{
                       onClick={props.view === 'wikipedia' ? props.postWiki : props.postGoog}
                       type={"primary"}
                     >
-                      Submi
+                      Submit
                   </Button>
                   ) : null
                 }
