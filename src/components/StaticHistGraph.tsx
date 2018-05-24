@@ -19,6 +19,23 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
     this.state = { currentHistory: this.props.history }
   }
 
+  // public shouldComponentUpdate(nextProps: IStaticHistProps) {
+  //   const nProps = JSON.stringify(nextProps);
+  //   console.log(nProps)
+
+  //   return JSON.stringify(this.props) !== nProps; 
+  // }
+
+  // public componentDidUpdate() {
+  //   this.setState({
+  //     currentHistory: this.props.history
+  //   }, () => {
+  //     this.historyGraph.fromJSON(JSON.parse(this.state.currentHistory.nodes));
+  //     this.loadHistory();
+  //     this.removeGraph();
+  //   })
+  // }
+
   public componentDidMount() {
     this.historyGraph = new historyGraph();
     this.historyGraph.fromJSON(JSON.parse(this.state.currentHistory.nodes));
@@ -54,6 +71,14 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
         show
     );
 }
+
+  // private removeGraph = () => {
+  //   const graph: any = this.ref;
+    
+  //   while(graph.hasChildNodes()) {
+  //     graph.removeChild(graph.lastChild);
+  //   }
+  // }
   
   private loadGraph = () => {
     const svg = d3.select(this.ref);
@@ -118,14 +143,11 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
 
     // tslint:disable-next-line:no-shadowed-variable
     const ended = (data: any) => {
-      // Remove progress bar when finished
       progressBar.remove();
 
-      // Get data with x and y values
       const links = data.links;
       const nodes = data.nodes;
 
-      // Add links
       g.append('g')
         .attr('class', 'links')
         .attr('transform', 'translate(' + (innerWidth / 2) + ',' + (innerHeight / 10) + ')')
@@ -140,7 +162,6 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
         .attr("x2", (d: any) => d.target.x)
         .attr("y2", (d: any) => d.target.y);
 
-      // Add nodes
       const node = g.append('g')
         .attr('class', 'nodes')
         .attr('transform', 'translate(' + (innerWidth / 2) + ',' + (innerHeight / 10) + ')')
@@ -160,13 +181,6 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
       node.on('click', (d: any) => {
         this.props.loadPreview(d.data.url);
       })
-
-      // Add circles to nodes
-      // node.append('circle')
-      //   .attr('cy', '0')
-      //   .attr('cx', '0')
-      //   .attr('r', 5)
-        // .attr('fill', 'steelblue');
 
         node.append("text")
         .attr("dx", (d: any) => d.isSuggestion ? -25 : -40)
@@ -194,125 +208,4 @@ export default class StaticHistGraph extends React.Component <IStaticHistProps, 
     this.links = links.map((link: any) => ({ source: nodes[link.source], target: nodes[link.target] }));
     this.loadGraph();
   }
-
-  
 }
-
-
-
-
-// {
-// let link = g.append("g").attr("stroke", "lightblue").attr("stroke-width", 2).selectAll(".link");
-// let node = g.selectAll('.node');
-// const restart = (restartingSimulation: any) => {
-//     // Apply the general update pattern to the nodes.
-//     node = node.data(this.nodes, (d: any) => d.index);
-//     node.exit().remove();
-//     node = node.enter()
-//         .append("g")// ((d.mousedOver === true) || !d.isSuggestion)? color(d.index): 'grey')
-//         .attr("r", 8)
-//         .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
-//         .merge(node);
-//     node.append<SVGCircleElement>('circle')
-//         .attr('r', (d: any) => d.isSuggestion ? 20 : 40)
-//         .style('stroke', 'lightblue')
-//         .style('stroke-width', 2)
-//         .style('fill', (d: any) => d.isSuggestion ? "#E8F7FB" : "white")
-//         .on("mouseenter", (d: any) => {
-//             const { id } = d;
-//             // tslint:disable-next-line:no-shadowed-variable
-//             d3.selectAll('circle').filter((d: any) => d.id === id)
-//                 .style("fill", "lightblue");
-//         })
-//         .on("mouseleave", (d: any) => {
-//             const { id } = d;
-//             // tslint:disable-next-line:no-shadowed-variable
-//             d3.selectAll('circle').filter((d: any) => d.id === id)
-//                 // tslint:disable-next-line:no-shadowed-variable
-//                 .style("fill", (d: any) => d.isSuggestion ? "#E8F7FB" : "white");
-//         })
-//     node.append("text")
-//         .attr("dx", -20)
-//         .attr("dy", ".35em")
-//         .attr("fill", (d: any) => color(d.index))
-//         .text((d: any) => d.data.title);
-
-//     node.on('click', (d: any) => {
-//         window.location = d.data.url;
-//         restart(simulation);
-//     })
-//     node.on('contextmenu', (d: any) => {
-//         d3.event.preventDefault();
-//         // TODO: DELETE THE NODE
-//         // throw('error');
-//         this.nodes = this.nodes.filter(n => (n.id !== d.id) && n.anchorId !== d.id);
-//         this.links = this.links.filter((l: any) => l.source.id !== d.id && l.target.id !== d.id);
-//         this.nodes = this.nodes.filter(n => n.anchorId !== n.id);
-//         if (!d.isSuggestion) {
-//             const next = this.nodes.filter(n => n.prevId === d.id)[0];
-//             const prev = this.nodes.filter(n => n.id === d.prevId)[0];
-//             if (next !== undefined && prev !== undefined) {
-//                 next.prevId = prev.id;
-//                 this.links.push({
-//                     source: prev,
-//                     target: next
-//                 })
-//             }
-//         }
-//         restart(simulation);
-//     })
-//     node.call(d3.drag()
-//         .on("start", dragstarted)
-//         .on("drag", dragged)
-//         .on("end", dragended))
-
-//     // node.on('mouseover', (d: any) => {
-//     //     d.mousedOver = true;
-//     //     d3.select(this).empty
-//     // })
-//     // .on('mouseout', (d: any) => {d.mousedOver = false;});
-
-//     // Apply the general update pattern to the links.
-//     link = link.data(this.links, (d: { source: SimulationNodeDatum, target: SimulationNodeDatum }) =>
-//         d.source.index + "-" + d.target.index)
-//     link.exit().remove();
-//     link = link.enter().append("line").merge(link);
-
-//     // Update and restart the simulation.
-//     restartingSimulation.nodes(this.nodes);
-//     restartingSimulation.force("link").links(this.links);
-//     restartingSimulation.alpha(1).restart();
-// }
-
-// restart(simulation);
-
-// this.restart = restart.bind(this, simulation);
-
-// function ticked() {
-//     node.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
-//     link.attr("x1", (d: any) => d.source.x)
-//         .attr("y1", (d: any) => d.source.y)
-//         .attr("x2", (d: any) => d.target.x)
-//         .attr("y2", (d: any) => d.target.y);
-// }
-
-// function dragstarted(d: any) {
-//     if (!d3.event.active) {
-//         simulation.alphaTarget(0.3).restart()
-//     };
-//     d.fx = d.x;
-//     d.fy = d.y;
-// }
-
-// function dragged(d: any) {
-//     d.fx = d3.event.x;
-//     d.fy = d3.event.y;
-// }
-
-// function dragended(d: any) {
-//     if (!d3.event.active) {
-//         simulation.alphaTarget(0)
-//     };
-//     d.fx = null;
-//     d.fy = null;
-// }

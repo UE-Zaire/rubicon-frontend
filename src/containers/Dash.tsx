@@ -4,6 +4,7 @@ import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as io from 'socket.io-client';
+import Crumbs from "../components/Crumbs";
 import HistoryGraph from '../components/extensionGraphs/HistoryGraphView';
 import Force from '../components/Force';
 import Head from "../components/Head";
@@ -159,17 +160,17 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
                 }
                 // description={JSON.stringify(item.nodes)}
               />
-              <div ref={divElement => { this.divElement = divElement }} style={{
+              {/* <div ref={divElement => { this.divElement = divElement }} style={{
                 height: '100%', width: 'inherit'
               }}
                 // onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}
-              >
+              > */}
                 {this.state.renderDynamic === item.id && forceData !== null ? (
-                  <HistoryGraph history={item} height={height/3 + 100} width={width} />
+                  <HistoryGraph history={item} height={height/3.5} width={width} />
                       ) : (
-                    <StaticHistGraph history={item} height={height/3 + 100} width={width} loadPreview={this.loadPreview}/>
+                    <StaticHistGraph history={item} height={height/3.5} width={width} loadPreview={this.loadPreview}/>
                   )}
-              </div>
+              {/* </div> */}
             </List.Item>
           )
         }}
@@ -203,6 +204,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             logOut={this.props.logOut}
             userInfo={userInfo}
           />
+          <Crumbs preview={preview} search={search} view={view}/>
           <Layout hasSider={preview !== null ? true : false} id="wrapper">
             <Content
               style={{ margin: '1.6vw', padding: '1vw', background: '#fff', height: '100%' }}
@@ -367,18 +369,19 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     const newWidth: number = (wrapper.clientWidth - (wrapper.clientWidth * .396)) 
 
     if (this.state.view === 'wikipedia') {
+      console.log('toggling preview', {e});
       this.setState({
-        preview : {lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
+        preview : {name: e.id, lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
         width: newWidth
       });
     } else if (this.state.view === 'googleExplore') {
       this.setState({
-        preview : {lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
+        preview : {name: e.id, lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
         width: newWidth
       }); 
     } else if (this.state.view === 'searches') {
       this.setState({
-        preview : {lookup: e, x: 0, y: 0, searchType: this.state.view},
+        preview : {name: '', lookup: e, x: 0, y: 0, searchType: this.state.view},
         width: newWidth
       }); 
     }
@@ -389,7 +392,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     const newWidth: number = (wrapper.clientWidth - (wrapper.clientWidth * .396)) 
 
     this.setState({
-      preview: {lookup: link, x: 0, y: 0, searchType: this.state.view},
+      preview: {name: '', lookup: link, x: 0, y: 0, searchType: this.state.view},
       width: newWidth
     })
   }

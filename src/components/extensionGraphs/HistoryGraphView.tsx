@@ -7,6 +7,7 @@ import GraphNode from './GraphNode';
 import historyGraph from './HistoryGraph';
 
 class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory: any}>{
+    public mouseScrollPosition: any = 'none';
     private ref: SVGSVGElement;
     private historyGraph: any = null;
     private nodes: GraphNode[] = [];
@@ -28,7 +29,6 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
             .force("y", d3.forceY((d: any) => 100).strength(d => d.isSuggestion ? 0 : .5))// d.isSuggestion? d.y: 0))
             .force("x", d3.forceX((d: any) => d.x).strength(d => d.isSuggestion ? 0 : .5))
             .alphaTarget(1)
-            .on("tick", ticked)
         const g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
         let link = g.append("g").attr("stroke", "lightblue").attr("stroke-width", 2).selectAll(".link");
         let node = g.selectAll('.node');
@@ -48,7 +48,6 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
                 .style('fill', (d: any) => d.isSuggestion ? "#E8F7FB" : "white")
                 .on("mouseenter", (d: any) => {
                     const { title } = d.data;
-                    console.log('selected title', d);
                     // tslint:disable-next-line:no-shadowed-variable
                     d3.selectAll('circle').filter((d: any) => d.data.title === title)
                         .style("fill", "lightblue");
@@ -61,10 +60,12 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
                         .style("fill", (d: any) => d.isSuggestion ? "#E8F7FB" : "white");
                 })
             node.append("text")
-                .attr("dx", -20)
+                .attr("dx", (d: any) => d.isSuggestion ? -25 : -40)    
                 .attr("dy", ".35em")
                 .attr("fill", (d: any) => color(d.index))
-                .text((d: any) => d.data.title);
+                .text((d: any) => d.data.title)
+                .style("font-family", "Avenir")
+                .style("font-size", (d: any) => d.isSuggestion ? "10px" : "14px");  
 
             node.on('click', (d: any) => {
                 window.location = d.data.url;
@@ -118,14 +119,20 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
 
         this.restart = restart.bind(this, simulation);
 
-        function ticked() {
+        const ticked = () => {
             node.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
+            if (this.mouseScrollPosition === 'left') {
+                simulation.force("x", d3.forceX((d: any) => d.x - 10).strength(d => d.isSuggestion ? 0 : .5))
+            } else if (this.mouseScrollPosition === 'right') {
+                simulation.force("x", d3.forceX((d: any) => d.x + 10).strength(d => d.isSuggestion ? 0 : .5))
+            }
             link.attr("x1", (d: any) => d.source.x)
                 .attr("y1", (d: any) => d.source.y)
                 .attr("x2", (d: any) => d.target.x)
                 .attr("y2", (d: any) => d.target.y);
         }
 
+        simulation.on("tick", ticked);
         function dragstarted(d: any) {
             if (!d3.event.active) {
                 simulation.alphaTarget(0.3).restart()
@@ -141,7 +148,7 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
 
         function dragended(d: any) {
             if (!d3.event.active) {
-                simulation.alphaTarget(0)
+                simulation.alphaTarget(1)
             };
             d.fx = null;
             d.fy = null;
@@ -169,6 +176,22 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
         this.loadHistory();
     }
 
+
+    public handleScroll = (evt: any) => {
+        if (evt.clientX > window.innerWidth - (this.props.width * 0.1)) {
+            this.mouseScrollPosition = 'right';
+        } else if (evt.clientX < window.innerWidth - (this.props.width * 0.9)) {
+            this.mouseScrollPosition = 'left';
+        } else {
+            this.mouseScrollPosition = 'none';
+        }
+    }
+
+    public handleExitScroll = () => {
+        this.mouseScrollPosition = 'none';
+    }
+    
+
     public render() {
         // const width = window.innerWidth;
         // const height = window.innerHeight / 5;
@@ -180,7 +203,7 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
         };
 
         const show = (
-                <svg style={style} ref={(ref: SVGSVGElement) => this.ref = ref} />
+                <svg style={style} ref={(ref: SVGSVGElement) => this.ref = ref} onMouseMove={this.handleScroll} onMouseOut={this.handleExitScroll}/>
         );
 
         return (
