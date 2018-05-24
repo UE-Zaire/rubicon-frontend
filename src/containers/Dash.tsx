@@ -1,5 +1,5 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Button, Icon, Layout, List, Spin } from "antd";
+import { Button, Icon, Layout, List, Spin, Tooltip } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
@@ -8,7 +8,8 @@ import HistoryGraph from '../components/extensionGraphs/HistoryGraphView';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
-import StaticForce from "../components/StaticForce";
+// import StaticForce from "../components/StaticForce";
+import StaticHistGraph from "../components/StaticHistGraph";
 import { AutoCompData, IDashProps, IData, IGlobalState } from '../globalTypes';
 import Preview from './Preview';
 
@@ -64,7 +65,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   
   public render() {
 
-    const { collapsed, forceData, histories, height, width, autoComp, preview, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
+    const { collapsed, forceData, histories, height, width, autoComp, preview, renderDynamic, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
 
     const wikiView = (forceData !== null ?
       (
@@ -96,7 +97,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       <div style={{ height: searchLoading ? '100vh' : '100%' }}>
         <List
           size="large"
-          header={<div><Icon type="google" style={{ fontSize: '20px' }} /> Search Results for: {searchH1}</div>}
+          header={<h1><Icon type="google"/> Search Results for: {searchH1}</h1>}
           bordered={true}
           loading={searchLoading}
           dataSource={searchRes}
@@ -115,6 +116,12 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       <List
         itemLayout="vertical"
         size="large"
+        header={
+          <h1>
+            <Icon type="book" /> 
+            Research Histories
+          </h1>
+        }
         pagination={{
           onChange: (page: any) => {
             console.log(page);
@@ -131,18 +138,36 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             // extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
             >
               <List.Item.Meta
-                title={<a href={'#'}>{item.name.toUpperCase()}</a>}
+                title={
+                <Tooltip title={renderDynamic === item.id ? `Lock "${item.name}" history` : `Unlock "${item.name}" history`}>
+                  <a href={'#'} onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}>
+                      {item.name.toUpperCase()}
+                      {renderDynamic === item.id ?
+                        <Icon type="unlock" style={{
+                            cursor: 'pointer',
+                            transition: 'color .3s'
+                          }}
+                        /> :
+                        <Icon type="lock" style={{
+                            cursor: 'pointer',
+                            transition: 'color .3s'
+                          }}
+                        />
+                      }
+                    </a>
+                  </Tooltip>
+                }
                 // description={JSON.stringify(item.nodes)}
               />
               <div ref={divElement => { this.divElement = divElement }} style={{
                 height: '100%', width: 'inherit'
               }}
-                onClick={() => this.setState({ renderDynamic: this.state.renderDynamic === item.id ? null : item.id })}
+                // onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}
               >
                 {this.state.renderDynamic === item.id && forceData !== null ? (
-                  <HistoryGraph history={item} height={560} width={960} />
+                  <HistoryGraph history={item} height={height/3 + 100} width={width} />
                       ) : (
-                    <StaticForce data={forceData} />
+                    <StaticHistGraph history={item} height={height/3 + 100} width={width} loadPreview={this.loadPreview}/>
                   )}
               </div>
             </List.Item>
@@ -349,6 +374,11 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     } else if (this.state.view === 'googleExplore') {
       this.setState({
         preview : {lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
+        width: newWidth
+      }); 
+    } else if (this.state.view === 'searches') {
+      this.setState({
+        preview : {lookup: e, x: 0, y: 0, searchType: this.state.view},
         width: newWidth
       }); 
     }
