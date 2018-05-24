@@ -47,15 +47,16 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
                 .style('stroke-width', 2)
                 .style('fill', (d: any) => d.isSuggestion ? "#E8F7FB" : "white")
                 .on("mouseenter", (d: any) => {
-                    const { id } = d;
+                    const { title } = d.data;
+                    console.log('selected title', d);
                     // tslint:disable-next-line:no-shadowed-variable
-                    d3.selectAll('circle').filter((d: any) => d.id === id)
+                    d3.selectAll('circle').filter((d: any) => d.data.title === title)
                         .style("fill", "lightblue");
                 })
                 .on("mouseleave", (d: any) => {
-                    const { id } = d;
+                    const { title } = d.data;
                     // tslint:disable-next-line:no-shadowed-variable
-                    d3.selectAll('circle').filter((d: any) => d.id === id)
+                    d3.selectAll('circle').filter((d: any) => d.data.title === title)
                         // tslint:disable-next-line:no-shadowed-variable
                         .style("fill", (d: any) => d.isSuggestion ? "#E8F7FB" : "white");
                 })

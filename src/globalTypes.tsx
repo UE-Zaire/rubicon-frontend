@@ -64,7 +64,6 @@ export interface IHeadProps {
   userInfo: IUserInfo | null;
 }
 
-
 export interface IHistGraphProps {
   height: number;
   width: number;
@@ -80,6 +79,10 @@ export interface INavProps {
 
 export interface IPreviewProps extends IPreview{
   removePreview: () => void;
+}
+
+export interface IStaticHistProps extends IHistGraphProps{
+  loadPreview: (e: any) => void;
 }
 
 export interface IAutoCompDatum{
