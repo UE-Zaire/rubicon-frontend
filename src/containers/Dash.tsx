@@ -4,6 +4,7 @@ import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as io from 'socket.io-client';
+import HistoryGraph from '../components/extensionGraphs/HistoryGraphView';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
@@ -63,7 +64,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   
   public render() {
 
-    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
+    const { collapsed, forceData, histories, height, width, autoComp, preview, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
 
     const wikiView = (forceData !== null ?
       (
@@ -110,61 +111,6 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
         </div>
       )
 
-
-
-    const listData = [
-      { 
-        "history": "Thesis", 
-        "links": [
-          { 
-            "source": "wikipedia", 
-            "target": "medium" 
-          }
-        ], 
-        "nodes": [
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 1, 
-            "id": 1, 
-            "title": "medium",
-            "url": "http://www.medium.com", 
-          }, 
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z",
-            "history": 1, 
-            "id": 1, 
-            "title": "medium", 
-            "url": "http://www.medium.com", 
-          }
-        ], 
-      }, 
-      { 
-        "history": "SoloWeek", 
-        "links": [
-          { 
-            "source": "things", 
-            "target": "objects" 
-          }
-        ], 
-        "nodes": [
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 2, 
-            "id": 4, 
-            "title": "objects", 
-            "url": "http://www.objects.com", 
-          }, 
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 2, 
-            "id": 4, 
-            "title": "objects", 
-            "url": "http://www.objects.com", 
-          }
-        ], 
-      }
-    ];
-
     const searchView = (
       <List
         itemLayout="vertical"
@@ -175,33 +121,27 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
           },
           pageSize: 3,
         }}
-        dataSource={listData}
+        dataSource={histories}
         renderItem={(item: any) => {
           console.log('the item in list is', item);
           return (
             <List.Item
-              key={item.history}
+              key={item.id}
             // actions={[<IconText type="star-o" text="156" key="1" />, <IconText type="like-o" text="156" key="2" />, <IconText type="message" text="2" key="3" />]}
             // extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
             >
               <List.Item.Meta
-                title={<a href={'#'}>{item.history}</a>}
-                description={JSON.stringify(item.nodes)}
+                title={<a href={'#'}>{item.name.toUpperCase()}</a>}
+                // description={JSON.stringify(item.nodes)}
               />
               <div ref={divElement => { this.divElement = divElement }} style={{
                 height: '100%', width: 'inherit'
               }}
-                onClick={() => this.setState({ renderDynamic: this.state.renderDynamic === item.nodes[0].id ? null : item.nodes[0].id })}
+                onClick={() => this.setState({ renderDynamic: this.state.renderDynamic === item.id ? null : item.id })}
               >
-                {this.state.renderDynamic === item.nodes[0].id && forceData !== null ? (
-                  <Force
-                    width={960}
-                    height={560}
-                    view={view}
-                    data={forceData}
-                    loadPreview={this.loadPreview}
-                    removePreview={this.removePreview}
-                    handleEv={this.handleD3Ev} />) : (
+                {this.state.renderDynamic === item.id && forceData !== null ? (
+                  <HistoryGraph history={item} height={560} width={960} />
+                      ) : (
                     <StaticForce data={forceData} />
                   )}
               </div>
@@ -430,4 +370,5 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       width: this.state.fallbackWidth
     });
   }
+
 }
