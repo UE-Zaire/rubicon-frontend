@@ -70,14 +70,10 @@ export default class ForceGraph extends Component<IForceProps> {
         .forceSimulation()
         .nodes(data.nodes)
         .force(
-          'charge', 
+          'charge',
           d3
             .forceManyBody()
-            .strength(
-              data.nodes.length > 500 ? -200 : 
-              data.nodes.length > 100 ? -1400 : 
-              height > 1800 ? (data.nodes.length > 60 ? -3000 : data.nodes.length > 30 ? -4000 : -10000) :
-              -3200))
+            .strength(-1000))
         .force("link", d3.forceLink(data.links).id((d: any) => d.id))
         .force('center', d3.forceCenter(width / 2, height / 2.2));
 

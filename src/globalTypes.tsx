@@ -65,6 +65,13 @@ export interface IHeadProps {
 }
 
 
+export interface IHistGraphProps {
+  height: number;
+  width: number;
+  history: any;
+}
+
+
 export interface INavProps {
   collapsed: boolean;
   select: (e: any) => void;

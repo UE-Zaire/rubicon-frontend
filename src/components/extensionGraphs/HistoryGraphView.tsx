@@ -1,43 +1,20 @@
 /* tslint:disable:no-console jsx-no-lambda */
-// import { Affix, Button, Form, Input, Select } from 'antd';
-import axios from 'axios';
 import * as d3 from 'd3';
 import { SimulationNodeDatum } from 'd3';
 import * as React from 'react';
+import { IHistGraphProps } from '../../globalTypes';
 import GraphNode from './GraphNode';
 import historyGraph from './HistoryGraph';
 
-class HistoryGraphView extends React.Component {
-    public state = { toggle: true, histories: [], currentHistory: '' };
-
+class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory: any}>{
     private ref: SVGSVGElement;
     private historyGraph: any = null;
     private nodes: GraphNode[] = [];
     private links: Array<{ source: SimulationNodeDatum, target: SimulationNodeDatum }> = [];
     private restart: any = null; // is reset to restart function once simulation is loaded
-
-    public getUserGraphs = () => {
-        console.log('get the user graphs')
-        axios.get('/api/histories')
-            .then((result: any) => {
-
-                console.log('results', result.data)
-                // console.log('sum shit yo', result.data[0].nodes);
-                
-                this.setState({ histories: result.data, currentHistory: JSON.parse(result.data[0].nodes) }, () => {
-
-                    console.log(this, this.historyGraph);
-                    this.historyGraph.fromJSON(this.state.currentHistory);
-                    this.loadHistory();
-                });
-            })
-            .catch((err: any) => {
-                console.error(err);
-            })
-    }
-
-    public handleChangeHistory = () => {
-        this.loadHistory();
+    constructor(props: IHistGraphProps) {
+        super(props)
+        this.state = { currentHistory: props.history };
     }
 
     public loadGraph = () => {
@@ -47,72 +24,78 @@ class HistoryGraphView extends React.Component {
         const color = d3.scaleOrdinal(d3.schemeCategory10);
         const simulation = d3.forceSimulation(this.nodes)
             .force("charge", d3.forceManyBody().strength(-200).distanceMax(200))
-            .force("link", d3.forceLink(this.links).distance(200).strength(0.5))
-            .force("y", d3.forceY((d: any) => 100).strength(d => d.isSuggestion ? 0 : 1))// d.isSuggestion? d.y: 0))
-            .force("x", d3.forceX(700))
-            // .force('center', d3.forceCenter(width / 2, height / 2))
-            .alphaTarget(0)
+            .force("link", d3.forceLink(this.links).distance((d: any) => d.target.isSuggestion ? 60 : 100).strength(0.5))
+            .force("y", d3.forceY((d: any) => 100).strength(d => d.isSuggestion ? 0 : .5))// d.isSuggestion? d.y: 0))
+            .force("x", d3.forceX((d: any) => d.x).strength(d => d.isSuggestion ? 0 : .5))
+            .alphaTarget(1)
             .on("tick", ticked)
-
         const g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-        let link = g.append("g").attr("stroke", "lightblue").attr("stroke-width", 1.5).selectAll(".link");
+        let link = g.append("g").attr("stroke", "lightblue").attr("stroke-width", 2).selectAll(".link");
         let node = g.selectAll('.node');
         const restart = (restartingSimulation: any) => {
             // Apply the general update pattern to the nodes.
             node = node.data(this.nodes, (d: any) => d.index);
             node.exit().remove();
             node = node.enter()
-                .append("g").attr("fill", (d: any) => color(d.index)) // ((d.mousedOver === true) || !d.isSuggestion)? color(d.index): 'grey')
+                .append("g")// ((d.mousedOver === true) || !d.isSuggestion)? color(d.index): 'grey')
                 .attr("r", 8)
                 .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
                 .merge(node);
             node.append<SVGCircleElement>('circle')
-                .attr('r', 40)
+                .attr('r', (d: any) => d.isSuggestion ? 20 : 40)
                 .style('stroke', 'lightblue')
                 .style('stroke-width', 2)
-                .style('fill', "white")
+                .style('fill', (d: any) => d.isSuggestion ? "#E8F7FB" : "white")
+                .on("mouseenter", (d: any) => {
+                    const { id } = d;
+                    // tslint:disable-next-line:no-shadowed-variable
+                    d3.selectAll('circle').filter((d: any) => d.id === id)
+                        .style("fill", "lightblue");
+                })
+                .on("mouseleave", (d: any) => {
+                    const { id } = d;
+                    // tslint:disable-next-line:no-shadowed-variable
+                    d3.selectAll('circle').filter((d: any) => d.id === id)
+                        // tslint:disable-next-line:no-shadowed-variable
+                        .style("fill", (d: any) => d.isSuggestion ? "#E8F7FB" : "white");
+                })
             node.append("text")
                 .attr("dx", -20)
                 .attr("dy", ".35em")
+                .attr("fill", (d: any) => color(d.index))
                 .text((d: any) => d.data.title);
 
-
-            // node.append("image")
-            //     .attr("xlink:href", "https://github.com/favicon.ico")
-            //     .attr("x", -8)
-            //     .attr("y", -8)
-            //     .attr("width", 20)
-            //     .attr("height", 20)
             node.on('click', (d: any) => {
                 window.location = d.data.url;
+                // put sockets call in here //
                 restart(simulation);
             })
             node.on('contextmenu', (d: any) => {
-                    // TODO: DELETE THE NODE
-                    // throw('error');
-                    d3.event.preventDefault();
-                    this.nodes = this.nodes.filter(n => (n.id !== d.id) && n.anchorId !== d.id);
-                    this.links = this.links.filter((l: any) => l.source.id !== d.id && l.target.id !== d.id);
-                    this.nodes = this.nodes.filter(n => n.anchorId !== n.id);
-                    if (!d.isSuggestion) {
-                        const next = this.nodes.filter(n => n.prevId === d.id)[0];
-                        const prev = this.nodes.filter(n => n.id === d.prevId)[0];
-                        if (next !== undefined && prev !== undefined) {
-                            next.prevId = prev.id;
-                            this.links.push({
-                                source: prev,
-                                target: next
-                            })
-                        }
+                d3.event.preventDefault();
+                // TODO: DELETE THE NODE
+                // throw('error');
+                this.nodes = this.nodes.filter(n => (n.id !== d.id) && n.anchorId !== d.id);
+                this.links = this.links.filter((l: any) => l.source.id !== d.id && l.target.id !== d.id);
+                this.nodes = this.nodes.filter(n => n.anchorId !== n.id);
+                if (!d.isSuggestion) {
+                    const next = this.nodes.filter(n => n.prevId === d.id)[0];
+                    const prev = this.nodes.filter(n => n.id === d.prevId)[0];
+                    if (next !== undefined && prev !== undefined) {
+                        next.prevId = prev.id;
+                        this.links.push({
+                            source: prev,
+                            target: next
+                        })
                     }
-                    restart(simulation);
-                })
+                }
+                restart(simulation);
+            })
             node.call(d3.drag()
                 .on("start", dragstarted)
                 .on("drag", dragged)
                 .on("end", dragended))
 
-            // .on('mouseover', (d: any) => {
+            // node.on('mouseover', (d: any) => {
             //     d.mousedOver = true;
             //     d3.select(this).empty
             // })
@@ -144,7 +127,7 @@ class HistoryGraphView extends React.Component {
 
         function dragstarted(d: any) {
             if (!d3.event.active) {
-                simulation.alphaTarget(.3).restart()
+                simulation.alphaTarget(0.3).restart()
             };
             d.fx = d.x;
             d.fy = d.y;
@@ -165,19 +148,34 @@ class HistoryGraphView extends React.Component {
     }
 
     public componentDidMount() {
-        console.log('hello')
+        console.log('mounting histgraphview with state', this.state.currentHistory)
         this.historyGraph = new historyGraph();
-        this.getUserGraphs();
+        this.historyGraph.fromJSON(JSON.parse(this.state.currentHistory.nodes));
+        const res = this.historyGraph.generateGraph();
+        const nodes = res.nodes;
+        const links = res.links;
+
+        console.log({links}, {nodes});
+        this.nodes = Object.keys(nodes).map(id => nodes[id]);
+        this.links = links.map((link: any) => ({ source: nodes[link.source], target: nodes[link.target] }));
+        const nonSugNodes = Object.keys(nodes).map((key: any) => nodes[key]).filter((node: any) => !node.isSuggestion).length;
+        Object.keys(nodes).forEach((n: any) => nodes[n].x += this.props.width - (this.props.width * (1 / (nonSugNodes === 1 ? 2 : nonSugNodes))));
+        if (this.restart !== null) {
+            this.restart();
+        } else {
+            this.loadGraph();
+        }
+        this.loadHistory();
     }
 
     public render() {
-        const width = window.innerWidth;
-        const height = window.innerHeight / 5;
+        // const width = window.innerWidth;
+        // const height = window.innerHeight / 5;
         const style = {
             backgroundColor: 'white',
-            height,
+            height: this.props.height,
             marginBottom: "-8px",
-            width,
+            width: this.props.width,
         };
 
         const show = (
@@ -189,13 +187,15 @@ class HistoryGraphView extends React.Component {
         );
     }
 
-    private loadHistory() {
+    private loadHistory = () => {
         // chrome.runtime.sendMessage({type: "getNodesAndLinks"}, (response) => {
         const response = this.historyGraph.generateGraph();
         console.log({response});
         const nodes = response.nodes;
         const links = response.links;
         this.nodes = Object.keys(nodes).map(id => nodes[id]);
+        const nonSugNodes = Object.keys(nodes).map((key: any) => nodes[key]).filter((node: any) => !node.isSuggestion).length;
+        Object.keys(nodes).forEach((n: any) => nodes[n].x += this.props.width - (this.props.width * (1 / (nonSugNodes === 1 ? 2 : nonSugNodes))));
         this.links = links.map((link: any) => ({ source: nodes[link.source], target: nodes[link.target] }));
         if (this.restart !== null) {
             this.restart();

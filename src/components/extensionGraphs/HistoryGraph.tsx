@@ -85,6 +85,15 @@ class HistoryGraph {
       }
     })
 
+    let last = this.lastHistoryNode;
+    let lastPosition = 0;
+    while (last !== null) {
+        nodes[last.id].x = lastPosition;
+        lastPosition -= 150;
+        last = last.prev;
+    }
+
+
     // console.log({nodes: nodes, links: links});
     return { nodes, links }
   }
