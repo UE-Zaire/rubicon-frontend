@@ -72,7 +72,7 @@ export default class Head extends React.Component <IHeadProps>{
                     renderItem={(item: IAutoCompDatum, isHighlighted: boolean) =>
                       <div
                         key={item.id}
-                        style={{ backgroundColor: isHighlighted ? '#eee' : 'transparent' }}
+                        style={{ zIndex: 7, backgroundColor: isHighlighted ? '#eee' : 'transparent' }}
                       >
                         {item.label}
                       </div>

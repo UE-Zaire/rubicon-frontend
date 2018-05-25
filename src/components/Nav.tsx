@@ -52,10 +52,10 @@ export default (props: INavProps) => (
         <Icon type="book" style={{ fontSize: 20 }} /> 
         <span>Saved Searches</span>
       </Menu.Item>
-      <Menu.Item key="settings">
+      {/* <Menu.Item key="settings">
         <Icon type="setting" style={{ fontSize: 20 }} />
         <span>Settings</span>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   </Sider>
 )

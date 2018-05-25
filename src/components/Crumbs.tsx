@@ -11,7 +11,8 @@ const contentStyle: any = {
   paddingTop: '.6vh',
   position: "absolute",
   top: 68,
-  width: '100vw'
+  width: '100vw',
+  zIndex: 5
 }
 
 const Crumbs = (props: ICrumbProps) => {
