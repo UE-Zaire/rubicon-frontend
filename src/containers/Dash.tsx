@@ -1,13 +1,16 @@
 /* tslint:disable:no-console jsx-no-lambda */
-import { Button, Icon, Layout, List, Spin } from "antd";
+import { Button, Icon, Layout, List, Spin, Tooltip } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
 import * as io from 'socket.io-client';
+import Crumbs from "../components/Crumbs";
+import HistoryGraph from '../components/extensionGraphs/HistoryGraphView';
 import Force from '../components/Force';
 import Head from "../components/Head";
 import Nav from "../components/Nav";
-import StaticForce from "../components/StaticForce";
+// import StaticForce from "../components/StaticForce";
+import StaticHistGraph from "../components/StaticHistGraph";
 import { AutoCompData, IDashProps, IData, IGlobalState } from '../globalTypes';
 import Preview from './Preview';
 
@@ -22,6 +25,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     this.state = {
       autoComp: [],
       collapsed: false,
+      fallbackWidth: 0,
       forceData: null,
       height: 0,
       histories: [],
@@ -40,7 +44,6 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     
   }
 
-  // socket code to be triggered on click after choosing a history to open on extension:
   
   // socket.emit('historyForExtension', { selectedGraphName: 'graphName', userId: '' });
 
@@ -49,11 +52,12 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public componentDidMount() {
     window.addEventListener('resize', this.handleResize);
 
-    const height = window.innerHeight > 1100 ? window.innerHeight * .88 : window.innerHeight * .82;
-    const width = window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80;
+    const height = this.divElement !== null ? this.divElement.clientHeight : 0;
+    const width = this.divElement !== null ? this.divElement.clientWidth : 0;
+    const fallbackWidth = width
 
-    console.log('mounted');
-    this.setState({height, width}, () => this.postWiki());
+    console.log('mounted', {width}, {height}, this.divElement);
+    this.setState({height, width, fallbackWidth}, () => this.postWiki());
   }
 
   public componentWillUnmount() {
@@ -61,36 +65,11 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
   }
   
   public render() {
-    // console.log('rendering ', this.state.forceData);
 
-    const { collapsed, forceData, height, width, autoComp, preview, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
+    const { collapsed, forceData, histories, height, width, autoComp, preview, renderDynamic, search, searchH1, searchLoading, searchRes, userInfo, view } = this.state;
 
     const wikiView = (forceData !== null ?
       (
-        <div ref={divElement => { this.divElement = divElement }} style={{
-          height: '100vh', width: 'inherit'
-        }}>
-          <Force
-            width={width}
-            height={height}
-            data={forceData}
-            view={view}
-            loadPreview={this.loadPreview}
-            removePreview={this.removePreview}
-            handleEv={this.handleD3Ev} />
-        </div>
-      ) :
-      (<div ref={divElement => { this.divElement = divElement }} style={{
-        height: '100vh', width: 'inherit'
-      }}>
-        <Spin size="large" />
-      </div>)
-    );
-
-    const googleView = this.state.view === 'googleExplore' && forceData !== null ? (
-      <div ref={divElement => { this.divElement = divElement }} style={{
-        height: '100vh', width: 'inherit'
-      }}>
         <Force
           width={width}
           height={height}
@@ -99,150 +78,99 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
           loadPreview={this.loadPreview}
           removePreview={this.removePreview}
           handleEv={this.handleD3Ev} />
+      ) :
+      (<div style={{ height: '100%', width: '100%' }}>
+        <Spin size="large" />
       </div>
+      )
+    );
+
+    const googleView = this.state.view === 'googleExplore' && forceData !== null ? (
+      <Force
+        width={width}
+        height={height}
+        data={forceData}
+        view={view}
+        loadPreview={this.loadPreview}
+        removePreview={this.removePreview}
+        handleEv={this.handleD3Ev} />
     ) : (
+      <div style={{ height: searchLoading ? '100vh' : '100%' }}>
         <List
           size="large"
-          header={<div><Icon type="google" style={{ fontSize: '20px' }} /> Search Results for: {searchH1}</div>}
+          header={<h1><Icon type="google"/> Search Results for: {searchH1}</h1>}
           bordered={true}
           loading={searchLoading}
           dataSource={searchRes}
           renderItem={(item: any) => (
-            <List.Item actions={[<Button onClick={() => this.exploreGoog(item)} key={item.title.split(' ')[0]} size={"small"}>Explore</Button>, <Button target="_blank"  href={item.link} key={item.title.split(' ')[0]} size={"small"}>Open</Button>]}>
+            <List.Item actions={[<Button onClick={() => this.exploreGoog(item)} key={item.title.split(' ')[0]} size={"small"}>Explore</Button>, <Button target="_blank" href={item.link} key={item.title.split(' ')[0]} size={"small"}>Open</Button>]}>
               <List.Item.Meta
                 title={<a href={"#"} onClick={() => this.loadPreviewGoog(item.link)}>{item.title}</a>}
                 description={item.description}
               />
-              {/* <div>content</div> */}
             </List.Item>)}
         />
+        </div>
       )
-
-
-
-    const listData = [
-      { 
-        "history": "Thesis", 
-        "links": [
-          { 
-            "source": "wikipedia", 
-            "target": "medium" 
-          }
-        ], 
-        "nodes": [
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 1, 
-            "id": 1, 
-            "title": "medium",
-            "url": "http://www.medium.com", 
-          }, 
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z",
-            "history": 1, 
-            "id": 1, 
-            "title": "medium", 
-            "url": "http://www.medium.com", 
-          }
-        ], 
-      }, 
-      { 
-        "history": "SoloWeek", 
-        "links": [
-          { 
-            "source": "things", 
-            "target": "objects" 
-          }
-        ], 
-        "nodes": [
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 2, 
-            "id": 4, 
-            "title": "objects", 
-            "url": "http://www.objects.com", 
-          }, 
-          { 
-            "added_at": "2018-05-19T21:29:25.000Z", 
-            "history": 2, 
-            "id": 4, 
-            "title": "objects", 
-            "url": "http://www.objects.com", 
-          }
-        ], 
-      }
-    ];
-
-    // const sampleData = {
-    //   links: listData[0].links,
-    //   nodes: listData[0].nodes
-    // }
-    // for (let i = 0; i < 23; i++) {
-    //   listData.push({
-    //     avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-    //     content: 'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-    //     description: 'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-    //     href: 'http://ant.design',
-    //     title: `ant design part ${i}`,
-    //   });
-    // }
-
-    // const IconText = (dataT: any) => {
-
-    //   const { type, text } = dataT;
-
-
-    //   return (
-    //     <span>
-    //       <Icon type={type} style={{ marginRight: 8 }} />
-    //       {text}
-    //     </span>
-    //   );
-    // }
 
     const searchView = (
       <List
         itemLayout="vertical"
         size="large"
+        header={
+          <h1>
+            <Icon type="book" /> 
+            Research Histories
+          </h1>
+        }
         pagination={{
           onChange: (page: any) => {
             console.log(page);
           },
           pageSize: 3,
         }}
-        dataSource={listData}
-        // footer={<div><b>ant design</b> footer part</div>}
+        dataSource={histories}
         renderItem={(item: any) => {
           console.log('the item in list is', item);
           return (
             <List.Item
-              key={item.history}
-              // actions={[<IconText type="star-o" text="156" key="1" />, <IconText type="like-o" text="156" key="2" />, <IconText type="message" text="2" key="3" />]}
-              // extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
+              key={item.id}
+            // actions={[<IconText type="star-o" text="156" key="1" />, <IconText type="like-o" text="156" key="2" />, <IconText type="message" text="2" key="3" />]}
+            // extra={<img width={272} alt="logo" src="https://gw.alipayobjects.com/zos/rmsportal/mqaQswcyDLcXyDKnZfES.png" />}
             >
               <List.Item.Meta
-                // avatar={<Avatar src={item.avatar} />}
-                title={<a href={'#'}>{item.history}</a>}
-                description={JSON.stringify(item.nodes)}
+                title={
+                <Tooltip title={renderDynamic === item.id ? `Lock "${item.name}" history` : `Unlock "${item.name}" history`}>
+                  <a href={'#'} onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}>
+                      {item.name.toUpperCase()}
+                      {renderDynamic === item.id ?
+                        <Icon type="unlock" style={{
+                            cursor: 'pointer',
+                            transition: 'color .3s'
+                          }}
+                        /> :
+                        <Icon type="lock" style={{
+                            cursor: 'pointer',
+                            transition: 'color .3s'
+                          }}
+                        />
+                      }
+                    </a>
+                  </Tooltip>
+                }
+                // description={JSON.stringify(item.nodes)}
               />
-              <div ref={divElement => { this.divElement = divElement }} style={{
+              {/* <div ref={divElement => { this.divElement = divElement }} style={{
                 height: '100%', width: 'inherit'
               }}
-              onClick={() => this.setState({renderDynamic: this.state.renderDynamic === item.nodes[0].id ? null : item.nodes[0].id})}
-              >
-              {/* {item.content} */}
-                {this.state.renderDynamic === item.nodes[0].id && forceData !== null ? (
-                <Force
-                  width={960}
-                  height={560}
-                  view={view}
-                  data={forceData}
-                  loadPreview={this.loadPreview}
-                  removePreview={this.removePreview}
-                  handleEv={this.handleD3Ev} />) : (
-                    <StaticForce data={forceData} />
+                // onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}
+              > */}
+                {this.state.renderDynamic === item.id && forceData !== null ? (
+                  <HistoryGraph history={item} height={height/3.5} width={width} />
+                      ) : (
+                    <StaticHistGraph history={item} height={height/3.5} width={width} loadPreview={this.loadPreview}/>
                   )}
-              </div>
+              {/* </div> */}
             </List.Item>
           )
         }}
@@ -256,10 +184,12 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             (<Spin size="large" />) 
     );
 
+    console.log('rendering')
+
     return (
       <Layout style={{ minHeight: '100vh', minWidth: '100vw' }} hasSider={true}>
         <Nav collapsed={this.state.collapsed} select={this.chgView} view={view} />
-        <Layout style={{ height: '100%' }}>
+        <Layout>
           <Head
             collapsed={collapsed}
             toggleSider={this.toggleNav}
@@ -274,12 +204,19 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
             logOut={this.props.logOut}
             userInfo={userInfo}
           />
-          <Layout hasSider={preview !== null ? true : false}>
+          <Crumbs preview={preview} search={search} view={view}/>
+          <Layout hasSider={preview !== null ? true : false} id="wrapper">
             <Content
               style={{ margin: '1.6vw', padding: '1vw', background: '#fff', height: '100%' }}
-              id="mount"
             >
+            <div 
+              id="mount" 
+              ref={divElement => { this.divElement = divElement }} 
+              style={{ 
+                height: this.state.view === 'wikipedia' || this.state.view === 'googleExplore' ? 'calc(100vh - (74px + 2.6vw * 2))' : 'inherit'
+              }}>
               {viewSwitcher()}
+            </div>
             </Content>
             {preview !== null && <Preview {...preview} removePreview={this.removePreview} />}
           </Layout>
@@ -314,7 +251,7 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
         this.setState({
           searchH1: this.state.search,
           searchLoading: false,
-          searchRes,
+          searchRes
         });
       })
       .catch((err) => console.error(err));
@@ -361,16 +298,18 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
     })
     
   }
-  
+
   private handleResize = () => this.setState({
-    height : window.innerHeight > 1100 ? window.innerHeight * .88 : window.innerHeight * .82,
-    width : window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80
+    fallbackWidth: this.divElement !== null ? this.divElement.clientWidth : 0,
+    height: this.divElement !== null ? this.divElement.clientHeight : 0,
+    width: this.divElement !== null ? this.divElement.clientWidth : 0,
   })
+
 
   private toggleNav = () => {
     const { collapsed } = this.state;
     
-    const width = collapsed === true ? ( window.innerWidth > 2500 ? window.innerWidth * .90 : window.innerWidth * .83 ) : window.innerWidth * .93;
+    const width = collapsed ? this.state.width - 120 : this.state.width + 120;
 
     this.setState({
       collapsed: !collapsed,
@@ -426,30 +365,43 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
 
   private loadPreview = (e: any) => {
     console.log('D3 mousevent fired', e);
+    const wrapper: any =  document.getElementById('wrapper')
+    const newWidth: number = (wrapper.clientWidth - (wrapper.clientWidth * .396)) 
 
     if (this.state.view === 'wikipedia') {
+      console.log('toggling preview', {e});
       this.setState({
-        preview : {lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
-        width: this.state.width * .66
+        preview : {name: e.id, lookup: e.id, x: e.x, y: e.y, searchType: this.state.view},
+        width: newWidth
       });
     } else if (this.state.view === 'googleExplore') {
       this.setState({
-        preview : {lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
-        width: this.state.width * .66
+        preview : {name: e.id, lookup: e.link, x: e.x, y: e.y, searchType: this.state.view},
+        width: newWidth
+      }); 
+    } else if (this.state.view === 'searches') {
+      this.setState({
+        preview : {name: '', lookup: e, x: 0, y: 0, searchType: this.state.view},
+        width: newWidth
       }); 
     }
   }
 
   private loadPreviewGoog = (link: string) => {
+    const wrapper: any =  document.getElementById('wrapper')
+    const newWidth: number = (wrapper.clientWidth - (wrapper.clientWidth * .396)) 
+
     this.setState({
-      preview: {lookup: link, x: 0, y: 0, searchType: this.state.view}
+      preview: {name: '', lookup: link, x: 0, y: 0, searchType: this.state.view},
+      width: newWidth
     })
   }
 
   private removePreview = () => {
     this.setState({
       preview: null,
-      width: window.innerWidth > 2500 ? window.innerWidth * .888 : window.innerWidth * .80
+      width: this.state.fallbackWidth
     });
   }
+
 }

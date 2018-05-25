@@ -39,7 +39,7 @@ export default (props: INavProps) => (
     >
       <Menu.Item key="wikipedia">
           <i className="anticon">
-            <FA  name="wikipedia-w"style={{ marginLeft: -2, fontSize: 20 }}/>
+            <FA  name="wikipedia-w" style={{ marginLeft: -2, fontSize: 20 }}/>
           </i>
           <span >Wikipedia</span>
       </Menu.Item>
@@ -52,10 +52,10 @@ export default (props: INavProps) => (
         <Icon type="book" style={{ fontSize: 20 }} /> 
         <span>Saved Searches</span>
       </Menu.Item>
-      <Menu.Item key="settings">
+      {/* <Menu.Item key="settings">
         <Icon type="setting" style={{ fontSize: 20 }} />
         <span>Settings</span>
-      </Menu.Item>
+      </Menu.Item> */}
     </Menu>
   </Sider>
 )

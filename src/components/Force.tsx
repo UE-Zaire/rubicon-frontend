@@ -40,7 +40,7 @@ export default class ForceGraph extends Component<IForceProps> {
     const { width, height, view } = this.props;
     console.log('printing view in force', view)
     const style = {
-      backgroundColor: 'rgb(255, 255, 255)',
+      backgroundColor: '#001528',
       height,
       width
     };
@@ -70,14 +70,10 @@ export default class ForceGraph extends Component<IForceProps> {
         .forceSimulation()
         .nodes(data.nodes)
         .force(
-          'charge', 
+          'charge',
           d3
             .forceManyBody()
-            .strength(
-              data.nodes.length > 500 ? -200 : 
-              data.nodes.length > 100 ? -1400 : 
-              height > 1800 ? (data.nodes.length > 60 ? -3000 : data.nodes.length > 30 ? -4000 : -10000) :
-              -3200))
+            .strength(-1000))
         .force("link", d3.forceLink(data.links).id((d: any) => d.id))
         .force('center', d3.forceCenter(width / 2, height / 2.2));
 
@@ -106,9 +102,9 @@ export default class ForceGraph extends Component<IForceProps> {
         .enter()
         .append<SVGCircleElement>('circle')
         .attr('r', radius)
-        .style('stroke', '#FFFFFF')
+        .style('stroke', 'rgb(246, 93, 93)')
         .style('stroke-width', 2)
-        .style('fill', (d: any) => color(d.group))
+        .style('fill', (d: any) => d.group === 1 ? 'rgb(246, 93, 93)' : 'white') 
         .call(
           d3
             .drag()
@@ -123,8 +119,8 @@ export default class ForceGraph extends Component<IForceProps> {
             .append("text")
               .text((d: any) => d.id )
               .style("text-anchor", "middle")
-              .style("fill", "white")
-              .style("font-family", "Arial")
+              .style('fill', (d: any) => d.group === 1 ? 'white' : 'rgb(246, 93, 93)') 
+              .style("font-family", "Avenir")
               .style("font-size", 12)
               .on("click", (e: any):void => {
                 const { id } = e;
@@ -184,8 +180,8 @@ export default class ForceGraph extends Component<IForceProps> {
 
   private dragEnded(d: any, force: any) {
     if (!d3.event.active) { force.alphaTarget(0)};
-    // d.fx = null;
-    // d.fy = null;
+    d.fx = null;
+    d.fy = null;
   }
 
 }

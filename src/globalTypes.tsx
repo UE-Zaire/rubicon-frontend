@@ -11,6 +11,7 @@ export interface IAppRouterState {
 export interface IGlobalState {
   autoComp: AutoCompData;
   collapsed: boolean;
+  fallbackWidth: number;
   forceData: IData | null;
   height: number;
   histories: any;
@@ -35,6 +36,8 @@ export interface IDashProps {
 }
 
 export interface ICrumbProps {
+  preview: IPreview | null; 
+  search: string;
   view: string;
 }
 
@@ -63,6 +66,12 @@ export interface IHeadProps {
   userInfo: IUserInfo | null;
 }
 
+export interface IHistGraphProps {
+  height: number;
+  width: number;
+  history: any;
+}
+
 
 export interface INavProps {
   collapsed: boolean;
@@ -74,12 +83,17 @@ export interface IPreviewProps extends IPreview{
   removePreview: () => void;
 }
 
+export interface IStaticHistProps extends IHistGraphProps{
+  loadPreview: (e: any) => void;
+}
+
 export interface IAutoCompDatum{
   id: string; 
   label: string;
 }
 
 export interface IPreview{
+  name: string;
   lookup: string;
   x: number;
   y: number;

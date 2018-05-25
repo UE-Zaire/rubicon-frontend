@@ -29,7 +29,7 @@ class Auth extends React.Component <FormComponentProps, {}> {
         <Content style={{backgroundColor: '#001529'}}>
           <Col span={8} offset={8} >
             <Row style={{paddingTop: '10vh'}}>
-                <Content style={{background: '#fff', height: '50vh'}}>
+                <Content style={{background: '#fff', height: '60vh'}}>
                   <Col span={10} offset={7}>
                     <Row style={{paddingTop: '6vh'}}>
                       <Col style={{paddingBottom: '4vh'}}>
@@ -40,6 +40,14 @@ class Auth extends React.Component <FormComponentProps, {}> {
                           </h1>
                         </Row>
                       </Col>
+                      <Button type="primary" htmlType="submit" href="http://localhost:3005/login" className="login-form-button" style={{  width: '100%', minHeight: '40px'}} >
+                          <Row style={{ fontSize: 18, paddingTop: 4 }}><Icon type="google"/>  Login with Google</Row>
+                      </Button>
+                      <br/>
+                      <br />
+                      <br />
+                      <p style={{textAlign: "center"}}>OR</p>
+                      <br />
                       <Form onSubmit={this.handleSubmit} className="login-form">
                         <FormItem>
                           {getFieldDecorator('userName', {
