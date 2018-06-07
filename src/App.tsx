@@ -49,6 +49,7 @@ class App extends React.Component <{}, IAppRouterState> {
         console.log('in auth check', data)
 
         const userInfo = {
+          id: data.id,
           name: data.name,
           profPic: data.image,
         };

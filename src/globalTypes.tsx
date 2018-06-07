@@ -70,6 +70,7 @@ export interface IHistGraphProps {
   height: number;
   width: number;
   history: any;
+  user?: any;
 }
 
 

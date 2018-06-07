@@ -3,8 +3,8 @@ import { Button, Icon, Layout, List, Spin, Tooltip } from "antd";
 import Axios from 'axios';
 import { debounce } from 'lodash';
 import * as React from 'react';
-import * as io from 'socket.io-client';
 import Crumbs from "../components/Crumbs";
+
 import HistoryGraph from '../components/extensionGraphs/HistoryGraphView';
 import Force from '../components/Force';
 import Head from "../components/Head";
@@ -18,7 +18,6 @@ const { Content } = Layout;
 
 export default class Dash extends React.Component <IDashProps, IGlobalState> {
   public divElement: HTMLDivElement | null = null;
-  public socket = io();
 
   constructor(props: IDashProps) {
     super(props);
@@ -39,13 +38,10 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
       view: 'wikipedia',
       width: 0,
     };
-    
-    this.socket.emit('historyForExtension', { selectedGraphName: 'soloWeek', userId: '' });
-    
   }
 
   
-  // socket.emit('historyForExtension', { selectedGraphName: 'graphName', userId: '' });
+
 
   
 
@@ -166,9 +162,9 @@ export default class Dash extends React.Component <IDashProps, IGlobalState> {
                 // onClick={(e: any) => {e.preventDefault(); this.setState({ renderDynamic: renderDynamic === item.id ? null : item.id })}}
               > */}
                 {this.state.renderDynamic === item.id && forceData !== null ? (
-                  <HistoryGraph history={item} height={height/3.5} width={width} />
+                  <HistoryGraph history={item} height={height/3.5} width={width} user={this.props.userInfo}/>
                       ) : (
-                    <StaticHistGraph history={item} height={height/3.5} width={width} loadPreview={this.loadPreview}/>
+                    <StaticHistGraph history={item} height={height/3.5} width={width} loadPreview={this.loadPreview} />
                   )}
               {/* </div> */}
             </List.Item>

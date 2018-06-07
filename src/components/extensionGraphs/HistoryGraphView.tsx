@@ -2,9 +2,11 @@
 import * as d3 from 'd3';
 import { SimulationNodeDatum } from 'd3';
 import * as React from 'react';
+import * as io from 'socket.io-client';
 import { IHistGraphProps } from '../../globalTypes';
 import GraphNode from './GraphNode';
 import historyGraph from './HistoryGraph';
+
 
 class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory: any}>{
     public mouseScrollPosition: any = 'none';
@@ -13,6 +15,8 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
     private nodes: GraphNode[] = [];
     private links: Array<{ source: SimulationNodeDatum, target: SimulationNodeDatum }> = [];
     private restart: any = null; // is reset to restart function once simulation is loaded
+    private socket = io();
+
     constructor(props: IHistGraphProps) {
         super(props)
         this.state = { currentHistory: props.history };
@@ -69,7 +73,8 @@ class HistoryGraphView extends React.Component <IHistGraphProps, {currentHistory
 
             node.on('click', (d: any) => {
                 window.location = d.data.url;
-                // put sockets call in here //
+                this.socket.emit('historyForExtension', { selectedGraphName: this.state.currentHistory.name, userId: this.props.user.id });
+
                 restart(simulation);
             })
             node.on('contextmenu', (d: any) => {
