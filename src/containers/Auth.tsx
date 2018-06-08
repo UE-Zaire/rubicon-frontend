@@ -40,7 +40,7 @@ class Auth extends React.Component <FormComponentProps, {}> {
                           </h1>
                         </Row>
                       </Col>
-                      <Button type="primary" htmlType="submit" href="http://localhost:3005/login" className="login-form-button" style={{  width: '100%', minHeight: '40px'}} >
+                      <Button type="primary" htmlType="submit" href="/api/login" className="login-form-button" style={{  width: '100%', minHeight: '40px'}} >
                           <Row style={{ fontSize: 18, paddingTop: 4 }}><Icon type="google"/>  Login with Google</Row>
                       </Button>
                       <br/>
@@ -77,7 +77,7 @@ class Auth extends React.Component <FormComponentProps, {}> {
                             <a className="login-form-forgot" href="" >Forgot password</a>
                           </Col>
                         </Row>
-                          <Button type="primary" htmlType="submit" href="http://localhost:3005/login" className="login-form-button" style={{  width: '100%'}}>
+                          <Button type="primary" htmlType="submit" href="/api/login" className="login-form-button" style={{  width: '100%'}}>
                             Log in
                           </Button>
                         <br />
