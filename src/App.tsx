@@ -29,7 +29,7 @@ class App extends React.Component <{}, IAppRouterState> {
 
   private toggleAuth = () => {
     if (this.state.auth) {
-      Axios.get('/logout')
+      Axios.get('/api/logout')
         .then((res: any) => {
           this.setState({
             auth: false
